@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { IconMicrophone, IconChevronLeft } from '@tabler/icons-react'
 
 // ─── Schedule ────────────────────────────────────────────────────────────────
@@ -70,11 +71,14 @@ const VIBE_SUGGESTIONS = [
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function BuildPage() {
+  const router = useRouter()
   const [step, setStep] = useState(1)
   const [selectedClasses, setSelectedClasses] = useState<string[]>([])
   const [selectedEmphasis, setSelectedEmphasis] = useState<string[]>([])
   const [selectedEnergy, setSelectedEnergy] = useState<string | null>(null)
   const [vibeText, setVibeText] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Dates computed once on the client — explicit locale prevents hydration mismatch
   const now = new Date()
@@ -102,9 +106,45 @@ export default function BuildPage() {
     })
   }
 
-  function handleNext() {
-    if (step < 4) setStep(s => s + 1)
-    // Step 4: Generate routine — API call wired up later
+  async function handleNext() {
+    if (step < 4) {
+      setStep(s => s + 1)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/generate-routine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          emphasis: selectedEmphasis.join(' + ') || 'Evenly distributed',
+          energyArc: selectedEnergy,
+          vibe: vibeText || 'No specific vibe',
+          selectedClasses,
+        }),
+      })
+
+      if (!res.ok) throw new Error('API error')
+
+      const routine = await res.json()
+      localStorage.setItem('q_routine', JSON.stringify(routine))
+      router.push('/build/result')
+    } catch {
+      setError('Something went wrong. Try again.')
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[calc(100dvh-72px)] px-5 text-center gap-3">
+        <p className="text-2xl font-extrabold text-ink">Building your class...</p>
+        <p className="text-sm text-stone">This takes about 15–20 seconds.</p>
+      </div>
+    )
   }
 
   return (
@@ -274,25 +314,30 @@ export default function BuildPage() {
       </div>
 
       {/* ── Navigation ── */}
-      <div className="shrink-0 px-5 pt-4 pb-6 flex gap-3 border-t border-border bg-canvas">
-        {step > 1 && (
-          <button
-            onClick={() => setStep(s => s - 1)}
-            className="flex items-center gap-1 h-14 px-5 rounded-2xl bg-surface text-ink font-semibold border border-border transition-colors active:bg-border"
-          >
-            <IconChevronLeft size={18} stroke={2} />
-            Back
-          </button>
+      <div className="shrink-0 px-5 pt-4 pb-6 flex flex-col gap-2 border-t border-border bg-canvas">
+        {error && (
+          <p className="text-xs font-medium text-center" style={{ color: '#b45309' }}>
+            {error}
+          </p>
         )}
-        <button
-          onClick={handleNext}
-          disabled={!canAdvance}
-          className={`flex-1 h-14 rounded-2xl font-semibold text-base transition-all active:opacity-80 disabled:opacity-35 ${
-            step === 4 ? 'bg-forest text-canvas' : 'bg-forest text-canvas'
-          }`}
-        >
-          {step === 4 ? 'Generate routine' : 'Next'}
-        </button>
+        <div className="flex gap-3">
+          {step > 1 && (
+            <button
+              onClick={() => setStep(s => s - 1)}
+              className="flex items-center gap-1 h-14 px-5 rounded-2xl bg-surface text-ink font-semibold border border-border transition-colors active:bg-border"
+            >
+              <IconChevronLeft size={18} stroke={2} />
+              Back
+            </button>
+          )}
+          <button
+            onClick={handleNext}
+            disabled={!canAdvance}
+            className="flex-1 h-14 rounded-2xl font-semibold text-base bg-forest text-canvas transition-all active:opacity-80 disabled:opacity-35"
+          >
+            {step === 4 ? 'Generate routine' : 'Next'}
+          </button>
+        </div>
       </div>
 
     </div>
