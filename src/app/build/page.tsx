@@ -130,7 +130,7 @@ export default function BuildPage() {
         {/* Step 1 — Class selection */}
         {step === 1 && (
           <div className="flex flex-col gap-3">
-            <h2 className="text-xl font-bold text-ink mb-1">What's this class for?</h2>
+            <h2 className="text-xl font-bold text-ink mb-1">Which class are you building for?</h2>
             {classDates.map((date, i) => {
               const id = `slot-${i}`
               const active = selectedClasses.includes(id)
