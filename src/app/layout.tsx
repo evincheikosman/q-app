@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque } from "next/font/google";
+import BottomNav from "@/components/BottomNav";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -21,7 +22,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${bricolage.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+          <div className="flex-1 pb-[72px]">{children}</div>
+          <BottomNav />
+        </body>
     </html>
   );
 }
