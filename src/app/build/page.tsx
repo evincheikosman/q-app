@@ -71,7 +71,7 @@ const VIBE_SUGGESTIONS = [
 
 export default function BuildPage() {
   const [step, setStep] = useState(1)
-  const [selectedClass, setSelectedClass] = useState<string | null>(null)
+  const [selectedClasses, setSelectedClasses] = useState<string[]>([])
   const [selectedEmphasis, setSelectedEmphasis] = useState<string[]>([])
   const [selectedEnergy, setSelectedEnergy] = useState<string | null>(null)
   const [vibeText, setVibeText] = useState('')
@@ -82,8 +82,14 @@ export default function BuildPage() {
     .map(({ day, hour, minute }) => nextOccurrence(day, hour, minute, now))
     .sort((a, b) => a.getTime() - b.getTime())
 
+  function toggleClass(id: string) {
+    setSelectedClasses(prev =>
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    )
+  }
+
   const canAdvance =
-    (step === 1 && selectedClass !== null) ||
+    (step === 1 && selectedClasses.length > 0) ||
     (step === 2 && selectedEmphasis.length > 0) ||
     (step === 3 && selectedEnergy !== null) ||
     step === 4
@@ -127,13 +133,15 @@ export default function BuildPage() {
             <h2 className="text-xl font-bold text-ink mb-1">What's this class for?</h2>
             {classDates.map((date, i) => {
               const id = `slot-${i}`
-              const active = selectedClass === id
+              const active = selectedClasses.includes(id)
               return (
                 <button
                   key={id}
-                  onClick={() => setSelectedClass(id)}
+                  onClick={() => toggleClass(id)}
                   className={`w-full text-left rounded-2xl px-5 py-4 border-2 transition-colors ${
-                    active ? 'border-forest bg-surface' : 'border-border bg-surface'
+                    active
+                      ? 'border-forest bg-forest/8'
+                      : 'border-border bg-surface'
                   }`}
                 >
                   <p className="text-xs font-medium text-stone uppercase tracking-widest">
@@ -146,9 +154,11 @@ export default function BuildPage() {
               )
             })}
             <button
-              onClick={() => setSelectedClass('none')}
+              onClick={() => toggleClass('none')}
               className={`w-full text-left rounded-2xl px-5 py-4 border-2 transition-colors ${
-                selectedClass === 'none' ? 'border-forest bg-surface' : 'border-border bg-surface'
+                selectedClasses.includes('none')
+                  ? 'border-forest bg-forest/8'
+                  : 'border-border bg-surface'
               }`}
             >
               <p className="text-base font-semibold text-ink">No specific class</p>
