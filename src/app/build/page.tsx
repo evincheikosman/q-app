@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { IconMicrophone, IconChevronLeft } from '@tabler/icons-react'
 
@@ -86,6 +86,19 @@ export default function BuildPage() {
     .map(({ day, hour, minute }) => nextOccurrence(day, hour, minute, now))
     .sort((a, b) => a.getTime() - b.getTime())
 
+  useEffect(() => {
+    const raw = localStorage.getItem('q_build_prefill')
+    if (!raw) return
+    localStorage.removeItem('q_build_prefill')
+    try {
+      const p = JSON.parse(raw)
+      if (p.selectedClasses) setSelectedClasses(p.selectedClasses)
+      if (p.selectedEmphasis) setSelectedEmphasis(p.selectedEmphasis)
+      if (p.energyArc) setSelectedEnergy(p.energyArc)
+      if (p.vibe) setVibeText(p.vibe)
+    } catch {}
+  }, [])
+
   function toggleClass(id: string) {
     setSelectedClasses(prev =>
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
@@ -130,7 +143,26 @@ export default function BuildPage() {
       if (!res.ok) throw new Error('API error')
 
       const routine = await res.json()
-      localStorage.setItem('q_routine', JSON.stringify(routine))
+      const selectedSlots = classDates
+        .map((date, i) => {
+          if (!selectedClasses.includes(`slot-${i}`)) return null
+          return {
+            day: date.getDay(),
+            hour: date.getHours(),
+            minute: date.getMinutes(),
+            slotLabel: `${date.toLocaleDateString('en-US', { weekday: 'long' })} ${formatTime(date)}`,
+            date: date.toISOString(),
+          }
+        })
+        .filter((x): x is NonNullable<typeof x> => x !== null)
+      localStorage.setItem('q_routine', JSON.stringify({
+        ...routine,
+        selectedClasses,
+        selectedSlots,
+        energyArc: selectedEnergy,
+        selectedEmphasis,
+        vibe: vibeText,
+      }))
       router.push('/build/result')
     } catch {
       setError('Something went wrong. Try again.')
