@@ -20,9 +20,15 @@ interface Block {
   moves: Move[]
 }
 
+interface Tldr {
+  focus: string
+  whereTheyWillFeelIt: string
+  note: string
+}
+
 interface Routine {
   classOpener: string
-  tldr: string
+  tldr: Tldr
   totalMinutes: number
   blocks: Block[]
 }
@@ -141,8 +147,18 @@ export default function ResultPage() {
 
       {/* TLDR */}
       <div className="bg-surface rounded-2xl px-5 py-4">
-        <p className="text-xs font-medium text-stone uppercase tracking-widest mb-2">At a glance</p>
-        <p className="text-sm text-ink leading-relaxed">{routine.tldr}</p>
+        <p className="text-xs font-medium text-stone uppercase tracking-widest mb-3">At a glance</p>
+        <div className="flex flex-col gap-2">
+          <p className="text-xs text-ink">
+            <span className="font-semibold">Focus:</span> {routine.tldr.focus}
+          </p>
+          <p className="text-xs text-ink">
+            <span className="font-semibold">Where they'll feel it:</span> {routine.tldr.whereTheyWillFeelIt}
+          </p>
+          <p className="text-xs text-stone">
+            <span className="font-semibold text-ink">Note:</span> {routine.tldr.note}
+          </p>
+        </div>
         <div className="flex gap-4 mt-3 pt-3 border-t border-border">
           <div>
             <p className="text-xs text-stone">Duration</p>
