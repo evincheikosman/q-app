@@ -139,8 +139,17 @@ export default function RoutineView({
                 const alts = getAlternatives(block.name, move.name)
 
                 return (
+                  <div key={mi} className="flex flex-col gap-1.5">
+                    {move.springChange && (
+                      <div className="flex items-center gap-2 px-1">
+                        <div className="h-px flex-1 bg-border" />
+                        <span className="text-xs font-semibold text-forest shrink-0">
+                          Spring → {move.springChange}
+                        </span>
+                        <div className="h-px flex-1 bg-border" />
+                      </div>
+                    )}
                   <div
-                    key={mi}
                     className="bg-surface rounded-xl px-4 py-3.5 flex flex-col gap-1.5"
                   >
                     <div className="flex items-center gap-2">
@@ -177,6 +186,7 @@ export default function RoutineView({
                         </div>
                       </div>
                     )}
+                  </div>
                   </div>
                 )
               })}

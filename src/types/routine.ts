@@ -3,6 +3,7 @@ export interface Move {
   duration: number
   bilateral: boolean
   cue: string
+  springChange?: string
 }
 
 export interface Block {

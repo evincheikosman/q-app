@@ -10,55 +10,69 @@ CLASS STRUCTURE:
 - Right obliques: 3 moves × 1 min = 3 min (spring: 1 yellow)
 - Left legs: EXACT mirror of right legs — identical moves in identical order, opposite side
 - Left obliques: EXACT mirror of right obliques — identical moves, opposite side
-- Arms: 3-4 moves × 1 min (group by machine position — see position tags below)
+- Arms: 3-5 moves × 1 min = 3-5 min MAXIMUM. Never 6 moves. (spring: 3-5Y for kneeling, 1R+1-2Y for seated rows)
 - Core closer: 2-3 moves × 1 min = 2-3 min (spring: 1 yellow)
 
-TRANSITION RULES — most important section. Every move has a machine position. Consecutive moves MUST share the same position OR require only one simple transition (stand up, turn around, change cables). Never chain moves that each require a separate setup step.
+CORE OPENER SETTLING RULE:
+The first move of the core opener must begin with a stationary hold before the movement starts. The cue for the first move should always say something like: "Start in a high plank — settle in for 20 seconds, then begin [the movement] for the remaining 40 seconds." This gives the class time to get set up, find their footing, and move together. Never start the very first move of class with a dynamic movement from rep one.
 
-POSITION GROUPS — sequence moves within the same group before switching:
+OBLIQUE BLOCK SETTLING RULE:
+The first move of each oblique block (right and left) must also begin with a brief settling note in its cue. Example for Twisted Plank to Pike: "Hold a high plank for 10 seconds to find your position, then begin the twist for the remaining 50 seconds." This is especially important because clients are transitioning from legs and need a breath.
+
+FOCUS AREA RULE — CRITICAL:
+When the instructor sets a focus area (e.g. core-heavy, arm-heavy, glute-heavy), this does NOT mean add more moves of that type. It means choose more challenging variations of those moves, write more intense cues for those blocks, and note in the TLDR why those specific moves hit that area deeply. The total move count and class structure never changes based on focus area. Focus = intensity and intention, not volume.
+
+TRANSITION RULES — most important section:
+Every move has a machine position. Consecutive moves MUST share the same position OR require only one simple transition. Never chain moves that each require a separate setup step.
+
+POSITION GROUPS — sequence within the same group before switching:
 
 HANDS-AND-TOES (front platform): Plank, Bear, Plank to Pike, Giant Plank to Pike, Single Side Bear, Twisted Plank to Pike, Dancing Bear
 FOREARMS-AND-KNEES (carriage, facing front): Saw, Forearm Plank, Floor Strap Crunch, S-Strap Crunch, Twisted Saw
 HANDS-AND-KNEES (carriage, facing front): Wheelbarrow, Catfish, Reverse Catfish, Spoon, Super Crunch, Reverse Super Crunch, Bungee Crunch, Twisted Wheelbarrow, Twisted Catfish, Reverse Wheelbarrow
 KNEELING-FACING-BACK (back platform, facing back): Giant Wheelbarrow, Giant Catfish, Giant Kneeling Crunch, Giant Reverse Kneeling Crunch, Mega Catfish, Icebreaker, Kneeling Side Crunch, Kneeling Bicep Curl
-GIANT-REVERSE-SERIES (back platform, facing back — these flow seamlessly together as a unit): Giant Reverse Wheelbarrow, Giant Reverse Catfish, Giant Reverse Bear, Giant Reverse Kneeling Crunch, Giant Reverse Plank to Pike, Giant Reverse Saw — use this series for the core closer when you want a back-of-machine finisher with zero repositioning
-STANDING-FRONT-PLATFORM: Elevator Lunge, Elevator Split Lunge, Floor Lunge, Reverse Floor Lunge, Well Lunge, Back Lunge, Single Leg Squat, Express Lunge, Express Split Lunge, Fifth Lunge, Fifth Split Lunge, Escalator Lunge, Escalator Split Lunge, Spider Lunge, Runner's Lunge, Reverse Runner's Lunge, Side Kick, Skater, Ninja Kick, Spider Kick, Inner Thighs, Outer Thighs, Heavy Squats, Light Squats, Hamstring Curls, Bungee Kick, Bungee Hamstring Curl, Heavy Leg Press C-Bar
+GIANT-REVERSE-SERIES (back platform, facing back — zero repositioning between these): Giant Reverse Wheelbarrow, Giant Reverse Catfish, Giant Reverse Bear, Giant Reverse Kneeling Crunch, Giant Reverse Plank to Pike, Giant Reverse Saw — preferred for core closer
+STANDING-FRONT-PLATFORM: Elevator Lunge, Elevator Split Lunge, Floor Lunge, Reverse Floor Lunge, Well Lunge, Back Lunge, Single Leg Squat, Express Lunge, Express Split Lunge, Fifth Lunge, Fifth Split Lunge, Escalator Lunge, Escalator Split Lunge, Spider Lunge, Runner's Lunge, Reverse Runner's Lunge, Ninja Kick (standing sideways, working knee drives toward chest then extends), Spider Kick (standing at front, leg drives back and up), Inner Thighs, Outer Thighs, Heavy Squats, Light Squats, Hamstring Curls, Bungee Kick, Bungee Hamstring Curl, Heavy Leg Press C-Bar, Side Kick (client stands sideways on machine at front platform, non-working toes on carriage, working leg extends laterally — unilateral glute/abductor move)
 STANDING-BACK-PLATFORM: Deadlift, Single Leg Deadlift, Mega Donkey Kick, Giant Single Leg Squat
 SITTING-FACING-FRONT (carriage or back platform, cables in hands): Wide Mega Row, Narrow Seated Row, Tailbone Bicep Curl, Heavy Sexy Back, Straight-Arm Crunch, Torso Twist, Scrambled Eggs, French Twist, Teaser, Leg Sweep
-BACK-OF-MACHINE-OBLIQUES: Soul Train [sit on back platform facing front, one foot under carriage strap, pull carriage in — OR sit on carriage facing back, one foot under back platform strap], Reverse Soul Train [mirror] — both at back of machine, sequence after other back-of-machine moves
+BACK-OF-MACHINE-OBLIQUES: Soul Train (sit on back platform facing front, one foot under carriage strap, pull carriage in — OR sit on carriage facing back, one foot under back platform strap), Reverse Soul Train — both at back of machine
 LYING-ON-CARRIAGE: Super Lunge, Floor Strap Bicycle Crunch, Side Plank, Froggy Kick
 KNEELING-ON-CARRIAGE-FACING-FRONT (cables in hands): Serve the Platter, Hug a Tree, Shoulder Press, Tricep Extension, Lateral Raise, Chest Opener, Sexy Back, Newspaper, Reverse Fly, Single Arm Tricep Kickback, Mega Shoulder Press, Swimmer, Mega Chest Fly, Mega Chest Press, Mermaid, Mermaid Twist, Giant Sexy Back, Giant Chest Opener, Giant Lateral Raise, Giant Bicep Curl, Giant Tricep Extension, Giant Shoulder Press, Giant Serve the Platter
 BACK-PLATFORM-CABLES-OVERHEAD (always last in arms block): Mega Lat Pull, Mega Preacher Curl, Kneeling Lat Pulldown, Bicep Lat Pulldown, Tricep Lat Pulldown
 
-WRIST FATIGUE RULE — core opener only: Do not place more than 2 consecutive wrist-bearing moves (HANDS-AND-TOES or HANDS-AND-KNEES) in a row. Alternate with at least one FOREARMS-AND-KNEES move to give wrists a break. Example good opener: Bear [HANDS-AND-TOES] → Wheelbarrow [HANDS-AND-KNEES] → Saw [FOREARMS-AND-KNEES] → Plank to Pike [HANDS-AND-TOES]. Example bad opener: Plank → Bear → Wheelbarrow → Plank to Pike (4 consecutive wrist-bearing moves).
+WRIST FATIGUE RULE — core opener only:
+Do not place more than 2 consecutive wrist-bearing moves (HANDS-AND-TOES or HANDS-AND-KNEES) in a row. Alternate with at least one FOREARMS-AND-KNEES move to distribute wrist load.
 
-OBLIQUES SEQUENCING RULE: Twisted variants (Twisted Wheelbarrow, Twisted Catfish, Twisted Plank to Pike) stay within their same position group. Do not sequence Twisted Wheelbarrow [HANDS-AND-KNEES] directly into Twisted Catfish [HANDS-AND-KNEES] — they are the same move with minor variation and feel redundant. Mix position groups within the oblique block. Preferred oblique closer: Teaser [SITTING-FACING-FRONT] — toes on carriage facing the front mirror, which transitions seamlessly into the next leg block (just step foot forward into lunge).
+ARMS SPRING CHANGE RULE:
+Arms must not require more than one spring change. Structure arms in this order: all KNEELING-ON-CARRIAGE-FACING-FRONT moves first (3-5Y), then SITTING-FACING-FRONT moves (1R+1-2Y), then BACK-PLATFORM-CABLES-OVERHEAD last. This means one change: kneeling → seated. Never mix seated and kneeling moves so that the client has to change springs twice.
 
-ARMS SEQUENCING RULES:
-- "Wide Mega Row" and "Narrow Seated Row" are separate moves — both SITTING-FACING-FRONT, both using long cables. Sequence them consecutively since no repositioning is needed. Wide Mega Row first, then Narrow Seated Row.
-- Group all KNEELING-ON-CARRIAGE-FACING-FRONT arm moves together.
-- Group all SITTING-FACING-FRONT arm moves together.
-- Always put BACK-PLATFORM-CABLES-OVERHEAD moves (Mega Lat Pull, Kneeling Lat Pulldown) LAST in the arms block. These require dropping cables and moving to the back — never put them in the middle of a sequence.
-
-CORE CLOSER OPTIONS:
-- Option A — GIANT-REVERSE-SERIES closer: 2-3 moves from the Giant Reverse series (e.g., Giant Reverse Kneeling Crunch → Giant Reverse Plank to Pike). Zero repositioning, all back-of-machine facing back. High-intensity finish.
-- Option B — HANDS-AND-TOES closer: Forearm Plank → Plank to Pike or Bear. Simple, high-energy.
-Final move must always be high-energy. Never end with Cobra, Saw, or any passive/restorative move.
+OBLIQUES SEQUENCING RULE:
+Twisted variants (Twisted Wheelbarrow, Twisted Catfish, Twisted Plank to Pike) should not be sequenced back-to-back if they are in the same position group — vary position groups within the oblique block. Preferred oblique closer: Teaser [SITTING-FACING-FRONT] — transitions seamlessly into next leg block (step foot forward into lunge).
 
 BILATERAL RULE: Bilateral moves only at START or END of a leg block. Never between two unilateral moves.
+
+DO NOT sequence a move and its Reverse variant back-to-back.
 
 DURATION RULES:
 - Standard lunges and heavy leg moves: 2 min each
 - Hamstring curls, bungee variations, inner thighs, outer thighs, squats: 1 min each
 - All core, oblique, arm moves: 1 min each
 
-DO NOT sequence a move and its Reverse variant back-to-back (no Saw immediately followed by Reverse Saw).
+SPRING CHANGE INDICATOR:
+In the JSON output, add a "springChange" field to any move where the spring load is different from the previous move. Set it to the new spring load string (e.g. "1 red + 1-2 yellow"). This lets the display show a visual callout before that move.
 
 CLASS OPENER — what the instructor LITERALLY SAYS OUT LOUD:
-"Let's get started. Take a deep breath in... and out. [One optional tone-setting sentence matched to vibe.] Our goal for class today is [ONE goal from the bank below]. Let's go."
-Max 3 sentences. Warm, direct, spoken aloud to a room of people.
+"Let's get started. Take a deep breath in... and out. [One sentence that directly reflects the specific vibe and energy of THIS class — use actual words from the vibe prompt. Not generic wellness language.] Our goal for class today is [ONE goal from the bank below, chosen to match the energy arc and vibe]. Let's go."
 
-GOAL BANK — pick the one that best fits the energy arc and vibe:
+The tone-setting sentence must be specific to the vibe. Examples:
+- Vibe "dark and driven": "Today we move through the dark — quiet, focused, relentless."
+- Vibe "feel-good flow": "This one's for you — smooth, connected, every rep a gift to yourself."
+- Vibe "saturday energy": "It's Saturday — you chose to be here, so let's make it worth every second."
+- Vibe "emotional build": "Start wherever you are. By the end you'll be somewhere different."
+- Vibe "gritty and loud": "No apologies today. We go hard and we don't stop."
+Never use the same tone-setting sentence twice. Never use generic language like "move with intention" or "every rep is a chance to connect."
+
+GOAL BANK — pick the one that best fits energy arc and vibe. Vary across routines:
 - Give it 100% all the way through, no matter how hard it gets.
 - Make every transition as sharp as the moves themselves — no wasted seconds.
 - Push into the challenge instead of away from it. That's where it changes.
@@ -70,11 +84,12 @@ GOAL BANK — pick the one that best fits the energy arc and vibe:
 - Find your edge and live there for 40 minutes.
 - Trust the burn. That's the work doing exactly what it's supposed to do.
 
-TLDR — 3 lines maximum, for the instructor's eyes only:
-Line 1: "Focus: [primary muscle groups targeted, e.g. glutes, hamstrings, obliques]"
-Line 2: "Where they'll feel it: [specific description of where fatigue accumulates and why — draw on anatomy, e.g. 'posterior chain compounds across both leg blocks']"
-Line 3: "Note: [one heads-up about a transition, spring change, or intensity spike]"
-No paragraphs. No full sentences required. Quick scan only.
+TLDR — 3 lines max, for the instructor's eyes only:
+Line 1: "Focus: [primary muscle groups]"
+Line 2: "Where they'll feel it: [specific anatomical description of fatigue accumulation]"
+Line 3: "Note: [one heads-up about a spring change, transition, or intensity spike]"
+
+CORE CLOSER RULE: Final move must be high-energy. Never end with Cobra, Saw, or any passive/restorative move. Preferred closers: GIANT-REVERSE-SERIES or high-plank variations.
 
 MOVE DATABASE:
 CORE (1 yellow spring, 1 min each):
@@ -100,11 +115,11 @@ Giant Sexy Back, Giant Chest Opener, Giant Lateral Raise, Giant Bicep Curl, Gian
 
 RESPOND WITH VALID JSON ONLY. No markdown, no text outside the JSON.
 {
-  "classOpener": "what the instructor literally says out loud — max 3 sentences, conversational, uses the goal bank",
+  "classOpener": "what the instructor literally says out loud — max 3 sentences, specific to the vibe, uses the goal bank",
   "tldr": {
-    "focus": "primary muscle groups targeted",
-    "whereTheyWillFeelIt": "specific description of where fatigue accumulates and why",
-    "note": "one heads-up about a transition, spring change, or intensity spike"
+    "focus": "primary muscle groups",
+    "whereTheyWillFeelIt": "anatomical description of where fatigue accumulates",
+    "note": "one heads-up for the instructor"
   },
   "totalMinutes": 32,
   "blocks": [
@@ -115,12 +130,15 @@ RESPOND WITH VALID JSON ONLY. No markdown, no text outside the JSON.
         {
           "name": "move name",
           "duration": 1,
-          "cue": "what to say or do in the last 10-15 seconds of this move"
+          "springChange": "only present if spring changes before this move — e.g. '1 red + 1 yellow'",
+          "cue": "what to say or do — first move of opener and oblique blocks must include settling note"
         }
       ]
     }
   ]
-}`
+}
+
+Do not include "springChange" on a move if the spring load hasn't changed. Only include it when it changes.`
 
 export async function POST(request: Request) {
   try {
