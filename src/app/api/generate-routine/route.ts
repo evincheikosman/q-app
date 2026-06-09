@@ -16,6 +16,13 @@ CLASS STRUCTURE:
 CORE OPENER SETTLING RULE:
 The first move of the core opener must begin with a stationary hold before the movement starts. The cue for the first move should always say something like: "Start in a high plank — settle in for 20 seconds, then begin [the movement] for the remaining 40 seconds." This gives the class time to get set up, find their footing, and move together. Never start the very first move of class with a dynamic movement from rep one.
 
+CORE OPENER VARIATION RULE: The core opener must vary based on the energy arc and vibe. Do NOT default to Plank → Plank to Pike → Forearm Plank → Bear every time. Choose from these structures based on the input:
+
+- Slow burn / feel-good vibe: Start HANDS-AND-KNEES (e.g. Wheelbarrow or Catfish) → FOREARMS-AND-KNEES (Saw or Forearm Plank) → HANDS-AND-KNEES (Super Crunch or Spoon) → HANDS-AND-TOES (Bear or Plank to Pike)
+- Peak and hold / dark and driven vibe: Start HANDS-AND-TOES (Plank or Bear) → HANDS-AND-TOES (Plank to Pike) → HANDS-AND-KNEES (Super Crunch or Wheelbarrow) → HANDS-AND-TOES (Bear — end with something hard)
+- Steady / sustained energy vibe: Start FOREARMS-AND-KNEES (Forearm Plank or Saw) → HANDS-AND-KNEES (Catfish or Reverse Catfish) → HANDS-AND-TOES (Plank to Pike) → HANDS-AND-KNEES (Bungee Crunch or Spoon)
+- Core/oblique focus: Prioritize HANDS-AND-KNEES moves (Catfish, Wheelbarrow, Super Crunch, Reverse Super Crunch) — these demand more rotational and deep core stability than HANDS-AND-TOES moves.
+
 OBLIQUE BLOCK SETTLING RULE:
 The first move of each oblique block (right and left) must also begin with a brief settling note in its cue. Example for Twisted Plank to Pike: "Hold a high plank for 10 seconds to find your position, then begin the twist for the remaining 50 seconds." This is especially important because clients are transitioning from legs and need a breath.
 
@@ -98,7 +105,14 @@ Line 1: "Focus: [primary muscle groups]"
 Line 2: "Where they'll feel it: [specific anatomical description of fatigue accumulation]"
 Line 3: "Note: [one heads-up about a spring change, transition, or intensity spike]"
 
-CORE CLOSER RULE: Final move must be high-energy. Never end with Cobra, Saw, or any passive/restorative move. Preferred closers: GIANT-REVERSE-SERIES or high-plank variations.
+CORE CLOSER RULE: The core closer must vary based on the energy arc and vibe. Do NOT default to the Giant Reverse series every time. Choose from:
+
+- Dark and driven / peak and hold: Giant Reverse series (Giant Reverse Kneeling Crunch → Giant Reverse Plank to Pike → Giant Reverse Bear). Ends at back of machine, maximum demand.
+- Slow burn / feel-good: HANDS-AND-TOES series (Plank → Plank to Pike → Bear) or HANDS-AND-KNEES series (Wheelbarrow → Super Crunch → Catfish). Familiar positions, high intention.
+- Steady / sustained: Mix one FOREARMS-AND-KNEES move with one HANDS-AND-TOES finisher (e.g. Forearm Plank → Bear, or Saw → Plank to Pike).
+- Core/oblique focus: End with a HANDS-AND-KNEES crunch-based move (Super Crunch, Reverse Super Crunch, Bungee Crunch) as the final move.
+
+Final move must always be high-energy. Never end with Cobra, Saw, or any passive/restorative move.
 
 MOVE DATABASE:
 CORE (1 yellow spring, 1 min each):
