@@ -60,6 +60,14 @@ BACK-PLATFORM-CABLES-OVERHEAD (always last in arms block): Mega Lat Pull, Mega P
 WRIST FATIGUE RULE — core opener only:
 Do not place more than 2 consecutive wrist-bearing moves (HANDS-AND-TOES or HANDS-AND-KNEES) in a row. Alternate with at least one FOREARMS-AND-KNEES move to distribute wrist load.
 
+ARMS POSITION MIXING RULE — CRITICAL: Never mix SUPINE-ON-CARRIAGE (Shoulder Press), PRONE-ON-CARRIAGE (Swimmer), and KNEELING moves in the same arms block. Each requires full repositioning from the other. Choose ONE position family per arms block:
+
+- Option A — All kneeling (most common): Use only KNEELING-ON-CARRIAGE-FACING-BACK and/or KNEELING-ON-CARRIAGE-FACING-FRONT moves. One turn-around allowed. No lying moves.
+- Option B — All seated (heavy): Use only SITTING-FACING-FRONT moves (Wide Mega Row, Narrow Seated Row, Tailbone Bicep Curl, Heavy Sexy Back). No kneeling, no lying.
+- Option C — Kneeling then seated (one spring change): All kneeling first (3-5Y), then all seated (1R+1-2Y). One spring change, one position change. No lying moves.
+
+Do NOT build an arms block that includes Shoulder Press or Swimmer alongside kneeling cable moves. If Shoulder Press or Swimmer appear, they must be the only lying move and must be grouped with other lying moves — or left out entirely in favor of a clean kneeling block.
+
 ARMS SPRING CHANGE RULE: Arms must require NO MORE than one spring change total. Structure:
 - Option A (light only): All KNEELING moves on 3-5Y. No seated rows. No BACK-PLATFORM-CABLES-OVERHEAD moves.
 - Option B (light then heavy seated): All KNEELING-FACING-FRONT moves first (3-5Y) → then KNEELING-FACING-BACK moves (still 3-5Y, same spring, just turn around) → then SITTING-FACING-FRONT seated rows (1R+1-2Y, ONE spring change here) → NO additional moves after seated rows requiring a different spring.
