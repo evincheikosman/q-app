@@ -45,8 +45,11 @@ BACK-PLATFORM-CABLES-OVERHEAD (always last in arms block): Mega Lat Pull, Mega P
 WRIST FATIGUE RULE — core opener only:
 Do not place more than 2 consecutive wrist-bearing moves (HANDS-AND-TOES or HANDS-AND-KNEES) in a row. Alternate with at least one FOREARMS-AND-KNEES move to distribute wrist load.
 
-ARMS SPRING CHANGE RULE:
-Arms must not require more than one spring change. Structure arms in this order: all kneeling moves (KNEELING-ON-CARRIAGE-FACING-BACK then KNEELING-ON-CARRIAGE-FACING-FRONT) first (3-5Y), then SITTING-FACING-FRONT moves (1R+1-2Y), then BACK-PLATFORM-CABLES-OVERHEAD last. This means one change: kneeling → seated. Never mix seated and kneeling moves so that the client has to change springs twice.
+ARMS SPRING CHANGE RULE: Arms must require NO MORE than one spring change total. Structure:
+- Option A (light only): All KNEELING moves on 3-5Y. No seated rows. No BACK-PLATFORM-CABLES-OVERHEAD moves.
+- Option B (light then heavy seated): All KNEELING-FACING-FRONT moves first (3-5Y) → then KNEELING-FACING-BACK moves (still 3-5Y, same spring, just turn around) → then SITTING-FACING-FRONT seated rows (1R+1-2Y, ONE spring change here) → NO additional moves after seated rows requiring a different spring.
+- Option C (back platform last): Either A or B above, then BACK-PLATFORM-CABLES-OVERHEAD last (Mega Lat Pull, Kneeling Lat Pulldown) — but ONLY if they use the same spring as the previous group. Kneeling Lat Pulldown uses 3-5Y so it fits after kneeling moves. Mega Lat Pull uses 1R so it fits after seated rows.
+NEVER have Kneeling Lat Pulldown after Narrow Seated Row — different spring loads requiring a second change.
 
 ARMS FACING RULE: Never mix KNEELING-ON-CARRIAGE-FACING-FRONT and KNEELING-ON-CARRIAGE-FACING-BACK moves in the same arms block without explicitly grouping them — all facing-back moves together, then all facing-front moves together, with one turn-around between groups. Prefer arms blocks that use only one facing direction when possible. If both Sexy Back and moves like Tricep Extension are in the same routine, put Sexy Back first (facing back), then turn around for all facing-front moves.
 
