@@ -109,9 +109,12 @@ export default function HomePage() {
               </p>
             </div>
             {nextLinked ? (
-              <span className="shrink-0 text-xs font-semibold text-canvas bg-forest rounded-full px-3 py-1.5 mt-0.5">
+              <Link
+                href={`/build/result/${nextLinked.id}`}
+                className="shrink-0 text-xs font-semibold text-canvas bg-forest rounded-full px-3 py-1.5 mt-0.5 active:opacity-75 transition-opacity"
+              >
                 Linked
-              </span>
+              </Link>
             ) : (
               <span className="shrink-0 text-xs font-medium text-stone bg-canvas border border-border rounded-full px-3 py-1.5 mt-0.5">
                 No routine yet
@@ -151,9 +154,12 @@ export default function HomePage() {
                     {formatDate(date)}&nbsp;&middot;&nbsp;{formatTime(date)}
                   </span>
                   {linked ? (
-                    <span className="text-xs font-semibold text-canvas bg-forest rounded-full px-2.5 py-1 shrink-0 ml-3">
+                    <Link
+                      href={`/build/result/${linked.id}`}
+                      className="text-xs font-semibold text-canvas bg-forest rounded-full px-2.5 py-1 shrink-0 ml-3 active:opacity-75 transition-opacity"
+                    >
                       Linked
-                    </span>
+                    </Link>
                   ) : (
                     <span className="text-xs font-medium text-stone shrink-0 ml-3">
                       No routine

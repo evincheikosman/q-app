@@ -141,12 +141,10 @@ export default function RoutineView({
                 return (
                   <div key={mi} className="flex flex-col gap-1.5">
                     {move.springChange && (
-                      <div className="flex items-center gap-2 px-1">
-                        <div className="h-px flex-1 bg-border" />
-                        <span className="text-xs font-semibold text-forest shrink-0">
-                          Spring → {move.springChange}
+                      <div className="flex justify-center py-0.5">
+                        <span className="text-xs font-semibold text-canvas bg-forest rounded-full px-3.5 py-1.5">
+                          Change to {move.springChange}
                         </span>
-                        <div className="h-px flex-1 bg-border" />
                       </div>
                     )}
                   <div

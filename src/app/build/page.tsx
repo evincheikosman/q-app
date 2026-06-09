@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { IconMicrophone, IconChevronLeft } from '@tabler/icons-react'
+import type { SavedRoutine } from '@/types/routine'
 
 // ─── Schedule ────────────────────────────────────────────────────────────────
 
@@ -79,6 +81,8 @@ export default function BuildPage() {
   const [vibeText, setVibeText] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [savedRoutines, setSavedRoutines] = useState<SavedRoutine[]>([])
+  const [optionsOpenForSlot, setOptionsOpenForSlot] = useState<string | null>(null)
 
   // Dates computed once on the client — explicit locale prevents hydration mismatch
   const now = new Date()
@@ -98,6 +102,35 @@ export default function BuildPage() {
       if (p.vibe) setVibeText(p.vibe)
     } catch {}
   }, [])
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('q_routines')
+      if (stored) setSavedRoutines(JSON.parse(stored))
+    } catch {}
+  }, [])
+
+  function linkedRoutineForDate(date: Date): SavedRoutine | undefined {
+    return savedRoutines.find(r =>
+      r.selectedSlots?.some(
+        s => s.day === date.getDay() && s.hour === date.getHours() && s.minute === date.getMinutes()
+      )
+    )
+  }
+
+  function handleSlotTap(id: string, linked: SavedRoutine | undefined) {
+    if (linked) {
+      if (!selectedClasses.includes(id)) setSelectedClasses(prev => [...prev, id])
+      setOptionsOpenForSlot(prev => prev === id ? null : id)
+    } else {
+      toggleClass(id)
+    }
+  }
+
+  function handleBuildNew(id: string) {
+    if (!selectedClasses.includes(id)) setSelectedClasses(prev => [...prev, id])
+    setOptionsOpenForSlot(null)
+  }
 
   function toggleClass(id: string) {
     setSelectedClasses(prev =>
@@ -206,23 +239,62 @@ export default function BuildPage() {
             {classDates.map((date, i) => {
               const id = `slot-${i}`
               const active = selectedClasses.includes(id)
+              const linked = linkedRoutineForDate(date)
+              const optionsOpen = optionsOpenForSlot === id
               return (
-                <button
-                  key={id}
-                  onClick={() => toggleClass(id)}
-                  className={`w-full text-left rounded-2xl px-5 py-4 border-2 transition-colors ${
-                    active
-                      ? 'border-forest bg-forest/8'
-                      : 'border-border bg-surface'
-                  }`}
-                >
-                  <p className="text-xs font-medium text-stone uppercase tracking-widest">
-                    {formatDate(date)}
-                  </p>
-                  <p className="text-2xl font-extrabold text-ink mt-1 leading-none">
-                    {formatTime(date)}
-                  </p>
-                </button>
+                <div key={id} className="flex flex-col gap-2">
+                  <button
+                    onClick={() => handleSlotTap(id, linked)}
+                    className={`w-full text-left rounded-2xl px-5 py-4 border-2 transition-colors ${
+                      active
+                        ? 'border-forest bg-forest/8'
+                        : 'border-border bg-surface'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-xs font-medium text-stone uppercase tracking-widest">
+                          {formatDate(date)}
+                        </p>
+                        <p className="text-2xl font-extrabold text-ink mt-1 leading-none">
+                          {formatTime(date)}
+                        </p>
+                      </div>
+                      {linked && (
+                        <span className="shrink-0 mt-0.5 w-2 h-2 rounded-full bg-forest" />
+                      )}
+                    </div>
+                    {linked && (
+                      <p className="text-xs font-semibold text-forest mt-2">Routine ready</p>
+                    )}
+                  </button>
+
+                  {optionsOpen && linked && (
+                    <div className="bg-surface rounded-2xl px-4 py-3.5 flex flex-col gap-2.5 border border-border">
+                      <p className="text-xs text-stone truncate">{linked.name}</p>
+                      <div className="flex flex-col gap-2">
+                        <Link
+                          href={`/build/result/${linked.id}`}
+                          className="w-full text-center text-sm font-semibold text-canvas bg-forest rounded-xl py-2.5 active:opacity-75 transition-opacity"
+                        >
+                          View existing
+                        </Link>
+                        <button
+                          onClick={() => handleBuildNew(id)}
+                          className="w-full text-sm font-semibold text-ink bg-canvas border border-border rounded-xl py-2.5 active:opacity-75 transition-opacity"
+                        >
+                          Build new
+                        </button>
+                        <Link
+                          href={`/build/result/${linked.id}?duplicate=true`}
+                          className="w-full text-center text-sm font-medium text-stone bg-canvas border border-border rounded-xl py-2.5 active:opacity-75 transition-opacity"
+                        >
+                          Duplicate &amp; edit
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )
             })}
             <button
