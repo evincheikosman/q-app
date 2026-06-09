@@ -38,8 +38,8 @@ STANDING-BACK-PLATFORM: Deadlift, Single Leg Deadlift, Mega Donkey Kick, Giant S
 SITTING-FACING-FRONT (carriage or back platform, cables in hands): Wide Mega Row, Narrow Seated Row, Tailbone Bicep Curl, Straight-Arm Crunch, Torso Twist, Scrambled Eggs, French Twist, Teaser, Leg Sweep
 BACK-OF-MACHINE-OBLIQUES: Soul Train (sit on back platform facing front, one foot under carriage strap, pull carriage in — OR sit on carriage facing back, one foot under back platform strap), Reverse Soul Train — both at back of machine
 LYING-ON-CARRIAGE: Super Lunge, Floor Strap Bicycle Crunch, Side Plank, Froggy Kick
-KNEELING-ON-CARRIAGE-FACING-FRONT (kneeling on carriage, facing front mirror, cables come from back): Serve the Platter, Hug a Tree, Shoulder Press, Tricep Extension, Lateral Raise, Chest Opener, Newspaper, Reverse Fly, Single Arm Tricep Kickback, Mega Shoulder Press, Mega Chest Fly, Mega Chest Press, Swimmer, Mermaid, Mermaid Twist, Giant Bicep Curl, Giant Tricep Extension, Giant Shoulder Press, Giant Serve the Platter, Giant Chest Opener, Giant Lateral Raise
-KNEELING-ON-CARRIAGE-FACING-BACK (kneeling on carriage, facing back wall, cables come from front): Sexy Back, Heavy Sexy Back, Giant Sexy Back, Reverse Fly — NOTE: Reverse Fly can face either direction but defaults to facing back.
+KNEELING-ON-CARRIAGE-FACING-FRONT (kneeling on carriage, facing front mirror, cables come from back): Serve the Platter, Hug a Tree, Shoulder Press, Tricep Extension, Lateral Raise, Newspaper, Single Arm Tricep Kickback, Mega Shoulder Press, Mega Chest Fly, Mega Chest Press, Swimmer, Mermaid, Mermaid Twist, Giant Bicep Curl, Giant Tricep Extension, Giant Shoulder Press, Giant Serve the Platter, Giant Lateral Raise
+KNEELING-ON-CARRIAGE-FACING-BACK (kneeling on carriage, facing back wall, cables come from front): Sexy Back, Heavy Sexy Back, Giant Sexy Back, Chest Opener, Giant Chest Opener, Reverse Fly — NOTE: Reverse Fly can face either direction but defaults to facing back.
 BACK-PLATFORM-CABLES-OVERHEAD (always last in arms block): Mega Lat Pull, Mega Preacher Curl, Kneeling Lat Pulldown, Bicep Lat Pulldown, Tricep Lat Pulldown
 
 WRIST FATIGUE RULE — core opener only:
@@ -114,13 +114,13 @@ OBLIQUES (1 yellow, 1 min each):
 Twisted Wheelbarrow [HANDS-AND-KNEES], Twisted Saw [FOREARMS-AND-KNEES], Twisted Plank to Pike [HANDS-AND-TOES], Single Side Bear [HANDS-AND-TOES], Kneeling Side Crunch [KNEELING-FACING-BACK], Soul Train [BACK-OF-MACHINE-OBLIQUES], Reverse Soul Train [BACK-OF-MACHINE-OBLIQUES], Mermaid [KNEELING-ON-CARRIAGE-FACING-FRONT], Mermaid Twist [KNEELING-ON-CARRIAGE-FACING-FRONT], Floor Strap Bicycle Crunch [LYING-ON-CARRIAGE], Side Plank [LYING-ON-CARRIAGE], French Twist [SITTING-FACING-FRONT], Teaser [SITTING-FACING-FRONT], Twisted Catfish [HANDS-AND-KNEES], Scrambled Eggs [SITTING-FACING-FRONT], Torso Twist [SITTING-FACING-FRONT], Dancing Bear [HANDS-AND-TOES]
 
 LIGHT ARMS (3-5 yellow, 1 min each):
-Serve the Platter [KNEELING-ON-CARRIAGE-FACING-FRONT], Hug a Tree [KNEELING-ON-CARRIAGE-FACING-FRONT], Shoulder Press [KNEELING-ON-CARRIAGE-FACING-FRONT], Tricep Extension [KNEELING-ON-CARRIAGE-FACING-FRONT], Lateral Raise [KNEELING-ON-CARRIAGE-FACING-FRONT], Chest Opener [KNEELING-ON-CARRIAGE-FACING-FRONT], Sexy Back [KNEELING-ON-CARRIAGE-FACING-BACK], Newspaper [KNEELING-ON-CARRIAGE-FACING-FRONT], Kneeling Bicep Curl [KNEELING-FACING-BACK], Reverse Fly [KNEELING-ON-CARRIAGE-FACING-BACK], Single Arm Tricep Kickback [KNEELING-ON-CARRIAGE-FACING-FRONT], Kneeling Lat Pulldown [BACK-PLATFORM-CABLES-OVERHEAD]
+Serve the Platter [KNEELING-ON-CARRIAGE-FACING-FRONT], Hug a Tree [KNEELING-ON-CARRIAGE-FACING-FRONT], Shoulder Press [KNEELING-ON-CARRIAGE-FACING-FRONT], Tricep Extension [KNEELING-ON-CARRIAGE-FACING-FRONT], Lateral Raise [KNEELING-ON-CARRIAGE-FACING-FRONT], Chest Opener [KNEELING-ON-CARRIAGE-FACING-BACK], Sexy Back [KNEELING-ON-CARRIAGE-FACING-BACK], Newspaper [KNEELING-ON-CARRIAGE-FACING-FRONT], Kneeling Bicep Curl [KNEELING-FACING-BACK], Reverse Fly [KNEELING-ON-CARRIAGE-FACING-BACK], Single Arm Tricep Kickback [KNEELING-ON-CARRIAGE-FACING-FRONT], Kneeling Lat Pulldown [BACK-PLATFORM-CABLES-OVERHEAD]
 
 HEAVY ARMS (1 red + 1-2 yellow, 1 min each):
 Mega Chest Fly [KNEELING-ON-CARRIAGE-FACING-FRONT], Mega Chest Press [KNEELING-ON-CARRIAGE-FACING-FRONT], Tailbone Bicep Curl [SITTING-FACING-FRONT], Mega Shoulder Press [KNEELING-ON-CARRIAGE-FACING-FRONT], Swimmer [KNEELING-ON-CARRIAGE-FACING-FRONT], Heavy Sexy Back [KNEELING-ON-CARRIAGE-FACING-BACK], Wide Mega Row [SITTING-FACING-FRONT], Narrow Seated Row [SITTING-FACING-FRONT], Mega Preacher Curl [BACK-PLATFORM-CABLES-OVERHEAD], Mega Lat Pull [BACK-PLATFORM-CABLES-OVERHEAD]
 
 GIANT ARMS (2 yellow short cables, 1 min each):
-Giant Sexy Back [KNEELING-ON-CARRIAGE-FACING-BACK], Giant Chest Opener [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Lateral Raise [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Bicep Curl [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Tricep Extension [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Shoulder Press [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Serve the Platter [KNEELING-ON-CARRIAGE-FACING-FRONT]
+Giant Sexy Back [KNEELING-ON-CARRIAGE-FACING-BACK], Giant Chest Opener [KNEELING-ON-CARRIAGE-FACING-BACK], Giant Lateral Raise [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Bicep Curl [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Tricep Extension [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Shoulder Press [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Serve the Platter [KNEELING-ON-CARRIAGE-FACING-FRONT]
 
 RESPOND WITH VALID JSON ONLY. No markdown, no text outside the JSON.
 {
@@ -140,7 +140,7 @@ RESPOND WITH VALID JSON ONLY. No markdown, no text outside the JSON.
           "name": "move name",
           "duration": 1,
           "springChange": "only present if spring changes before this move — e.g. '1 red + 1 yellow'",
-          "cue": "what to say or do — first move of opener and oblique blocks must include settling note"
+          "cue": "1-2 sentences MAX — only what the instructor says or does in the final 10-15 seconds of the move. Not move setup instructions. Not form cues. Just the last-seconds challenge or hold. Example: 'Last ten — hold at the bottom, squeeze the glute, do not come up.' Never more than 2 sentences."
         }
       ]
     }
