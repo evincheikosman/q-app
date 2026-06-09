@@ -27,7 +27,13 @@ OBLIQUE BLOCK SETTLING RULE:
 The first move of each oblique block (right and left) must also begin with a brief settling note in its cue. Example for Twisted Plank to Pike: "Hold a high plank for 10 seconds to find your position, then begin the twist for the remaining 50 seconds." This is especially important because clients are transitioning from legs and need a breath.
 
 FOCUS AREA RULE — CRITICAL:
-When the instructor sets a focus area (e.g. core-heavy, arm-heavy, glute-heavy), this does NOT mean add more moves of that type. It means choose more challenging variations of those moves, write more intense cues for those blocks, and note in the TLDR why those specific moves hit that area deeply. The total move count and class structure never changes based on focus area. Focus = intensity and intention, not volume.
+The focus area the instructor selects defines what muscles appear in the TLDR "Focus" line. ONLY list muscles that are MORE emphasized than a standard balanced routine. If the instructor selects "core and obliques," the TLDR Focus line should say "Core, obliques" — not "core, obliques, glutes, hamstrings, shoulders." Every Lagree class works the full body. The focus line is about emphasis, not inventory.
+
+Focus areas also shape MOVE SELECTION, not just descriptions:
+- Core/oblique focus: Choose core opener moves that demand deep core stability (Catfish, Super Crunch, Wheelbarrow over simple Plank). Choose 3 distinct oblique moves per block — no two from the same position group. End with a crunch-based core closer.
+- Glute/hamstring focus: Lead each leg block with Hamstring Curls bilateral, choose posterior-chain-dominant heavy leg moves (Deadlift, Runner's Lunge, Mega Donkey Kick over Spider Lunge or Skater). Write cues that specifically call out the glute contraction.
+- Upper body/arms focus: Use 4-5 arm moves (max). Choose moves that require shoulder stability (Swimmer, Mega Shoulder Press) alongside standard pulls.
+- Evenly distributed: Balance all position groups equally. No block gets more moves than another.
 
 TRANSITION RULES — most important section:
 Every move has a machine position. Consecutive moves MUST share the same position OR require only one simple transition. Never chain moves that each require a separate setup step.
