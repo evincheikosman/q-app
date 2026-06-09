@@ -80,8 +80,14 @@ DURATION RULES:
 - Hamstring curls, bungee variations, inner thighs, outer thighs, squats: 1 min each
 - All core, oblique, arm moves: 1 min each
 
-SPRING CHANGE INDICATOR:
-In the JSON output, add a "springChange" field to any move where the spring load is different from the previous move. Set it to the new spring load string (e.g. "1 red + 1-2 yellow"). This lets the display show a visual callout before that move.
+SPRING CHANGE INDICATOR: Add a "springChange" field ONLY when the spring load genuinely changes from the previous move or block. Specific rules:
+- Core opener is 1 yellow. Light legs are also 1 yellow. Do NOT add springChange at the start of light legs — the spring has not changed.
+- DO add springChange before the first heavy leg move (1Y → 1R+1-2Y).
+- DO add springChange when returning to obliques after heavy legs (1R+1-2Y → 1Y).
+- DO add springChange at the start of arms if different from obliques spring.
+- DO add springChange at the start of core closer if different from arms spring.
+- DO add springChange within the arms block if moving from kneeling (3-5Y) to seated rows (1R+1-2Y).
+- NEVER show springChange when the spring is the same as what was just used.
 
 CLASS OPENER — what the instructor LITERALLY SAYS OUT LOUD:
 "Let's get started. Take a deep breath in... and out. [One sentence that directly reflects the specific vibe and energy of THIS class — use actual words from the vibe prompt. Not generic wellness language.] Our goal for class today is [ONE goal from the bank below, chosen to match the energy arc and vibe]. Let's go."
