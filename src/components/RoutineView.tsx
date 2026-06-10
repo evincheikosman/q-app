@@ -3,6 +3,7 @@
 import React from 'react'
 import { IconArrowsUpDown, IconX } from '@tabler/icons-react'
 import type { Block, Tldr } from '@/types/routine'
+import AnatomyTooltip from '@/components/AnatomyTooltip'
 
 // ─── Swap helpers ─────────────────────────────────────────────────────────────
 
@@ -98,7 +99,8 @@ export default function RoutineView({
             <span className="font-semibold">Focus:</span> {tldr.focus}
           </p>
           <p className="text-xs text-ink">
-            <span className="font-semibold">Where they&apos;ll feel it:</span> {tldr.whereTheyWillFeelIt}
+            <span className="font-semibold">Where they&apos;ll feel it:</span>{' '}
+            <AnatomyTooltip text={tldr.whereTheyWillFeelIt} />
           </p>
           <p className="text-xs text-stone">
             <span className="font-semibold text-ink">Note:</span> {tldr.note}

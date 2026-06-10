@@ -1,0 +1,15 @@
+export const anatomyGlossary: Record<string, string> = {
+  "transverse abdominis": "The deepest abdominal muscle — wraps around your core like a corset. Stabilizes the spine before any movement. The Lagree slow tempo keeps it under constant tension.",
+  "obliques": "The muscles on the sides of your torso — internal and external. Responsible for rotation and lateral bending. Heavy in every Lagree oblique block.",
+  "rectus abdominis": "The 'six-pack' muscle running vertically down the front of your abs. Works hardest in pike and crunch movements.",
+  "glutes": "Three muscles forming the buttocks — maximus, medius, minimus. The primary driver in all lunge and squat patterns.",
+  "hamstrings": "Three muscles on the back of the thigh. Active in all hinging, curling, and deadlift patterns.",
+  "hip flexors": "Muscles connecting the hip to the spine and thigh — responsible for lifting the leg. Under eccentric load in most lunge movements.",
+  "posterior chain": "The entire back side of the body — glutes, hamstrings, lower back. Lagree posterior-chain work is primarily slow, unilateral, and loaded.",
+  "serratus": "The muscle running along the side of the rib cage, visible as finger-like projections. Activated in oblique rotation and pike patterns.",
+  "lateral sling": "A connected chain of muscles — glutes, obliques, and serratus — that stabilize the body through rotational and lateral movement.",
+  "anterior core": "The front-facing core muscles as a unit — transverse abdominis, rectus abdominis, and internal obliques working together.",
+  "rear deltoids": "The back portion of the shoulder muscle. Activated in Sexy Back, Reverse Fly, and rowing movements.",
+  "rhomboids": "Muscles between the shoulder blades. Responsible for squeezing the shoulder blades together. Activated in all rowing and pulling arm moves.",
+  "QL": "Quadratus lumborum — a deep lower back muscle connecting the pelvis to the spine. Works hard in lateral and oblique patterns.",
+}
