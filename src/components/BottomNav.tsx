@@ -7,7 +7,7 @@ import {
   IconSparkles,
   IconBooks,
   IconChartBar,
-  IconUser,
+  IconUsers,
 } from '@tabler/icons-react'
 
 const tabs = [
@@ -15,7 +15,7 @@ const tabs = [
   { label: 'Build', href: '/build', icon: IconSparkles },
   { label: 'Library', href: '/library', icon: IconBooks },
   { label: 'Your Cue', href: '/your-cue', icon: IconChartBar },
-  { label: 'Profile', href: '/profile', icon: IconUser },
+  { label: 'Community', href: '/community', icon: IconUsers },
 ]
 
 export default function BottomNav() {
