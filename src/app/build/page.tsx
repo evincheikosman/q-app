@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { IconMicrophone, IconChevronLeft } from '@tabler/icons-react'
+import { IconMicrophone, IconChevronLeft, IconCheck, IconBrandSpotify } from '@tabler/icons-react'
 import type { SavedRoutine } from '@/types/routine'
 
 // ─── Schedule ────────────────────────────────────────────────────────────────
@@ -247,7 +247,7 @@ export default function BuildPage() {
                     onClick={() => handleSlotTap(id, linked)}
                     className={`w-full text-left rounded-2xl px-5 py-4 border-2 transition-colors ${
                       active
-                        ? 'border-forest bg-forest/8'
+                        ? 'border-forest bg-[rgba(27,56,40,0.08)]'
                         : 'border-border bg-surface'
                     }`}
                   >
@@ -260,8 +260,10 @@ export default function BuildPage() {
                           {formatTime(date)}
                         </p>
                       </div>
-                      {linked && (
-                        <span className="shrink-0 mt-0.5 w-2 h-2 rounded-full bg-forest" />
+                      {active && (
+                        <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-forest flex items-center justify-center">
+                          <IconCheck size={11} stroke={2.5} color="white" />
+                        </span>
                       )}
                     </div>
                     {linked && (
@@ -271,7 +273,22 @@ export default function BuildPage() {
 
                   {optionsOpen && linked && (
                     <div className="bg-surface rounded-2xl px-4 py-3.5 flex flex-col gap-2.5 border border-border">
-                      <p className="text-xs text-stone truncate">{linked.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-stone truncate flex-1">{linked.name}</p>
+                        {linked.spotifyPlaylistUrl && (
+                          <a
+                            href={linked.spotifyPlaylistUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Open playlist in Spotify"
+                            className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
+                            style={{ backgroundColor: '#1DB95420', color: '#1DB954' }}
+                          >
+                            <IconBrandSpotify size={12} stroke={2} />
+                            Playlist
+                          </a>
+                        )}
+                      </div>
                       <div className="flex flex-col gap-2">
                         <Link
                           href={`/build/result/${linked.id}`}
@@ -301,12 +318,21 @@ export default function BuildPage() {
               onClick={() => toggleClass('none')}
               className={`w-full text-left rounded-2xl px-5 py-4 border-2 transition-colors ${
                 selectedClasses.includes('none')
-                  ? 'border-forest bg-forest/8'
+                  ? 'border-forest bg-[rgba(27,56,40,0.08)]'
                   : 'border-border bg-surface'
               }`}
             >
-              <p className="text-base font-semibold text-ink">No specific class</p>
-              <p className="text-sm text-stone mt-0.5">Just building for practice</p>
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-base font-semibold text-ink">No specific class</p>
+                  <p className="text-sm text-stone mt-0.5">Just building for practice</p>
+                </div>
+                {selectedClasses.includes('none') && (
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-forest flex items-center justify-center">
+                    <IconCheck size={11} stroke={2.5} color="white" />
+                  </span>
+                )}
+              </div>
             </button>
           </div>
         )}
@@ -359,8 +385,17 @@ export default function BuildPage() {
                     active ? 'border-forest bg-surface' : 'border-border bg-surface'
                   }`}
                 >
-                  <p className="text-base font-bold text-ink">{label}</p>
-                  <p className="text-sm text-stone mt-1.5 leading-relaxed">{description}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <p className="text-base font-bold text-ink">{label}</p>
+                      <p className="text-sm text-stone mt-1.5 leading-relaxed">{description}</p>
+                    </div>
+                    {active && (
+                      <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-forest flex items-center justify-center">
+                        <IconCheck size={11} stroke={2.5} color="white" />
+                      </span>
+                    )}
+                  </div>
                 </button>
               )
             })}

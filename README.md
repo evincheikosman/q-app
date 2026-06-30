@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Q — Your class, on cue.
 
-## Getting Started
+An AI-powered routine and playlist builder for Lagree fitness instructors.
 
-First, run the development server:
+---
+
+## Why I built this
+
+I'm a Lagree instructor, and before every class I was doing the same tedious work: manually sequencing 40 minutes of exercises — spring loads, platform facing, timing, cues — and separately building a playlist that actually matched the energy arc. It happens before you even walk in the door, and it adds up. Q automates both so I can spend that time on the parts of teaching that actually require a human.
+
+The core intelligence — routine generation and playlist mapping — is powered by the Anthropic Claude API.
+
+---
+
+## What it does
+
+**Routine builder** — Describe your class (focus areas, energy arc, difficulty, vibe) and Q generates a complete 40-minute Lagree routine: ordered exercises, spring loads, platform facing, timing, instructor cues, a class opener, and a TLDR summary.
+
+**Playlist builder** — Enter an artist anchor and Q builds a Spotify playlist mapped to the energy arc of your routine — opener through core closer.
+
+**Library** — All saved routines in one place, each with its linked Spotify playlist accessible in one tap.
+
+**Your Cue** — Insights from your teaching history: top artists, music patterns, class composition trends.
+
+---
+
+## Tech stack
+
+- **Next.js 14** (App Router) + TypeScript
+- **Tailwind CSS**
+- **Anthropic Claude API** — routine and playlist generation
+- **Spotify Web API** + NextAuth.js — OAuth, playlist creation
+- **localStorage** — routine persistence (no database required for MVP)
+
+---
+
+## Getting started
+
+### Prerequisites
+
+- Node.js v18+
+- A Spotify Developer app ([developer.spotify.com](https://developer.spotify.com))
+- An Anthropic API key ([console.anthropic.com](https://console.anthropic.com))
+
+### Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/evincheikosman/q-app.git
+cd q-app
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a `.env.local` file in the root:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+ANTHROPIC_API_KEY=your_key_here
+SPOTIFY_CLIENT_ID=your_client_id
+SPOTIFY_CLIENT_SECRET=your_client_secret
+NEXTAUTH_URL=http://localhost:3001
+NEXTAUTH_SECRET=your_nextauth_secret
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+In your Spotify Developer dashboard, add `http://localhost:3001/api/auth/callback/spotify` as a Redirect URI.
 
-## Learn More
+```bash
+npm run dev -- --port 3001
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3001](http://localhost:3001) and sign in with Spotify.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project structure
 
-## Deploy on Vercel
+```
+src/app/
+  home/          # Dashboard — next class, recent routines
+  build/         # 4-step routine builder flow
+    result/      # Generated routine, playlist generation, save
+  library/       # Saved routines browser
+  your-cue/      # Instructor insights and music analytics
+  api/
+    auth/        # Spotify OAuth via NextAuth
+    generate-routine/   # Claude routine generation
+    generate-playlist/  # Claude + Spotify playlist builder
+    save-playlist/      # Creates playlist in Spotify account
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Status
+
+V1 core flow complete — routine generation and Spotify playlist building are both working end-to-end. Analytics (Your Cue) and account pages are still in progress. Deploying to Vercel once complete.
+
+---
+
+*Built by Evîn Cheikosman*

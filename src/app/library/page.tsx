@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { IconStar, IconSearch } from '@tabler/icons-react'
+import { IconStar, IconSearch, IconChevronRight, IconBrandSpotify } from '@tabler/icons-react'
 import type { SavedRoutine } from '@/types/routine'
 
 function formatSavedAt(ts: number) {
@@ -110,8 +110,11 @@ function RoutineCard({
   onToggleFavorite: (id: number) => void
 }) {
   return (
-    <div className="bg-surface rounded-2xl px-5 py-4 flex flex-col gap-3">
-      <div className="flex items-start gap-2">
+    <Link
+      href={`/build/result/${routine.id}`}
+      className="bg-surface rounded-2xl px-5 py-4 flex flex-col gap-3 border-2 border-transparent hover:border-border cursor-pointer transition-colors"
+    >
+      <div className="flex items-center gap-2">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-ink leading-snug">{routine.name}</p>
           <p className="text-xs text-stone mt-0.5">
@@ -119,7 +122,7 @@ function RoutineCard({
           </p>
         </div>
         <button
-          onClick={() => onToggleFavorite(routine.id)}
+          onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(routine.id) }}
           aria-label={routine.favorited ? 'Remove from favorites' : 'Add to favorites'}
           className="shrink-0 p-1.5 rounded-lg transition-colors"
         >
@@ -129,6 +132,7 @@ function RoutineCard({
             className={routine.favorited ? 'text-forest fill-forest' : 'text-stone'}
           />
         </button>
+        <IconChevronRight size={16} stroke={1.8} className="text-stone shrink-0" />
       </div>
 
       {routine.energyArc && (
@@ -137,12 +141,19 @@ function RoutineCard({
         </p>
       )}
 
-      <Link
-        href={`/build/result/${routine.id}`}
-        className="w-full text-center text-xs font-semibold text-forest bg-canvas border border-border rounded-xl py-2.5 active:opacity-70 transition-opacity"
-      >
-        View
-      </Link>
-    </div>
+      {routine.spotifyPlaylistUrl && (
+        <a
+          href={routine.spotifyPlaylistUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={e => e.stopPropagation()}
+          className="self-start flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+          style={{ backgroundColor: '#1DB95420', color: '#1DB954' }}
+        >
+          <IconBrandSpotify size={12} stroke={2} />
+          Open in Spotify
+        </a>
+      )}
+    </Link>
   )
 }

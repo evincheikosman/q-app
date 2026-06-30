@@ -30,6 +30,35 @@ function shortArcLabel(arc: string): string {
   return arc
 }
 
+function computeSoundPatterns(routines: SavedRoutine[]) {
+  const withTracks = routines.filter(r => r.playlistTracks && r.playlistTracks.length > 0)
+  if (withTracks.length < 2) return null
+
+  // per-routine occurrence count (how many playlists feature this artist)
+  const playlistCount: Record<string, number> = {}
+  // raw track count across all playlists
+  const trackCount: Record<string, number> = {}
+
+  for (const r of withTracks) {
+    const seenInRoutine = new Set<string>()
+    for (const t of r.playlistTracks!) {
+      const a = t.artist
+      trackCount[a] = (trackCount[a] ?? 0) + 1
+      if (!seenInRoutine.has(a)) {
+        seenInRoutine.add(a)
+        playlistCount[a] = (playlistCount[a] ?? 0) + 1
+      }
+    }
+  }
+
+  const sortedByPlaylist = Object.entries(playlistCount).sort((a, b) => b[1] - a[1])
+  const top3 = sortedByPlaylist.slice(0, 3).map(([artist, count]) => ({ artist, count }))
+  const uniqueCount = sortedByPlaylist.length
+  const [topName, topCount] = sortedByPlaylist[0] ?? []
+
+  return { top3, uniqueCount, topName, topCount }
+}
+
 function buildReflection(total: number, topEmphasis: string | null, topArc: string | null): string {
   if (total === 0) {
     return "You haven't built a routine yet. Once you do, this is where Q will start reflecting back what it sees in your teaching — patterns, tendencies, the things you reach for without thinking."
@@ -70,13 +99,16 @@ export default function YourCuePage() {
 
   const { total, topEmphasis, topArc } = computeStats(routines)
   const reflection = buildReflection(total, topEmphasis, topArc)
+  const soundPatterns = computeSoundPatterns(routines)
 
   return (
     <div className="px-5 pt-12 pb-10 flex flex-col gap-8 max-w-lg mx-auto w-full">
 
+      <h1 className="text-3xl font-extrabold text-ink">Your Cue</h1>
+
       {/* ── Section 1: My Account ── */}
-      <section className="flex flex-col gap-5">
-        <h1 className="text-3xl font-extrabold text-ink">My Account</h1>
+      <section className="flex flex-col gap-5 pb-4 border-b border-border">
+        <p className="text-xs font-medium tracking-widest uppercase text-stone">My Account</p>
 
         {/* Identity */}
         <div className="flex items-center gap-4">
@@ -92,18 +124,18 @@ export default function YourCuePage() {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-surface rounded-2xl px-3 py-4 flex flex-col gap-1 items-center text-center">
-            <p className="text-3xl font-extrabold text-ink">{total}</p>
+          <div className="bg-surface rounded-2xl px-4 py-6 flex flex-col gap-1 items-center text-center">
+            <p className="text-3xl font-bold text-ink">{total}</p>
             <p className="text-xs text-stone leading-snug">Routines built</p>
           </div>
-          <div className="bg-surface rounded-2xl px-3 py-4 flex flex-col gap-1 items-center text-center">
-            <p className="text-sm font-bold text-ink leading-snug">
+          <div className="bg-surface rounded-2xl px-4 py-6 flex flex-col gap-1 items-center text-center">
+            <p className="text-base font-bold text-ink leading-snug">
               {topEmphasis ?? '—'}
             </p>
             <p className="text-xs text-stone mt-auto leading-snug">Top emphasis</p>
           </div>
-          <div className="bg-surface rounded-2xl px-3 py-4 flex flex-col gap-1 items-center text-center">
-            <p className="text-sm font-bold text-ink leading-snug">
+          <div className="bg-surface rounded-2xl px-4 py-6 flex flex-col gap-1 items-center text-center">
+            <p className="text-base font-bold text-ink leading-snug">
               {topArc ? shortArcLabel(topArc) : '—'}
             </p>
             <p className="text-xs text-stone mt-auto leading-snug">Fav energy arc</p>
@@ -132,6 +164,45 @@ export default function YourCuePage() {
           <p className="text-sm text-ink leading-relaxed italic">{reflection}</p>
         </div>
       </section>
+
+      {/* ── Section 3: Sound Patterns ── */}
+      {soundPatterns && (
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs font-medium text-stone uppercase tracking-widest">Sound Patterns</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-surface rounded-2xl px-4 py-5 flex flex-col gap-1">
+              <p className="text-2xl font-bold text-forest">{soundPatterns.uniqueCount}</p>
+              <p className="text-xs text-stone leading-snug">Unique artists used</p>
+            </div>
+            <div className="bg-surface rounded-2xl px-4 py-5 flex flex-col gap-1">
+              <p className="text-sm font-bold text-ink leading-snug truncate">{soundPatterns.topName}</p>
+              <p className="text-xs text-stone leading-snug">
+                {soundPatterns.topCount} playlist{soundPatterns.topCount !== 1 ? 's' : ''}
+              </p>
+              <p className="text-xs text-stone mt-0.5 leading-snug">Top artist</p>
+            </div>
+          </div>
+
+          <div className="bg-surface rounded-2xl px-5 py-4 flex flex-col gap-3">
+            <p className="text-xs font-medium text-stone uppercase tracking-widest">Most used artists</p>
+            <div className="flex flex-col gap-2">
+              {soundPatterns.top3.map(({ artist, count }) => (
+                <div key={artist} className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-ink truncate">{artist}</p>
+                  <span className="shrink-0 text-xs font-semibold text-forest bg-forest/10 rounded-full px-2.5 py-0.5">
+                    {count} playlist{count !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
     </div>
   )

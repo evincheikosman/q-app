@@ -3,31 +3,41 @@ const FEED = [
     name: 'Mara Velden',
     studio: 'Core 40 Amsterdam',
     milestone: 'just hit 300 classes taught',
+    emoji: '🏆',
     timestamp: '2 days ago',
+    avatarColor: '#1B3828',
   },
   {
     name: 'Jonah Reyes',
     studio: 'Core 40 Los Angeles',
     milestone: 'taught their first class',
+    emoji: '🎯',
     timestamp: '4 days ago',
+    avatarColor: '#3A5040',
   },
   {
     name: 'Suki Tanaka',
     studio: 'Core 40 San Francisco',
     milestone: 'routine favorited 10 times by other instructors',
+    emoji: '✨',
     timestamp: '5 days ago',
+    avatarColor: '#7A7570',
   },
   {
     name: 'Lena Drost',
     studio: 'Core 40 Amsterdam',
     milestone: 'started a new instructor cohort',
+    emoji: '🌱',
     timestamp: '1 week ago',
+    avatarColor: '#5C4033',
   },
   {
     name: 'Caleb Monroe',
     studio: 'Core 40 Los Angeles',
     milestone: 'hit a 50-class streak',
+    emoji: '🔥',
     timestamp: '1 week ago',
+    avatarColor: '#2C4A6E',
   },
 ]
 
@@ -55,8 +65,11 @@ export default function CommunityPage() {
             className="bg-surface border border-border rounded-2xl px-5 py-4 flex items-start gap-4"
           >
             {/* Avatar */}
-            <div className="w-10 h-10 rounded-full border border-forest bg-forest/10 flex items-center justify-center shrink-0 mt-0.5">
-              <span className="text-xs font-bold text-forest">{initials(entry.name)}</span>
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+              style={{ backgroundColor: entry.avatarColor }}
+            >
+              <span className="text-xs font-bold text-white">{initials(entry.name)}</span>
             </div>
 
             {/* Content */}
@@ -64,7 +77,7 @@ export default function CommunityPage() {
               <p className="text-sm text-ink leading-snug">
                 <span className="font-semibold">{entry.name}</span>
                 {' '}
-                <span className="text-stone">{entry.milestone}.</span>
+                <span className="text-stone">{entry.emoji} {entry.milestone}.</span>
               </p>
               <p className="text-xs text-stone mt-1.5">{entry.studio} · {entry.timestamp}</p>
             </div>

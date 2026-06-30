@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { IconBrandSpotify } from '@tabler/icons-react'
 import RoutineView from '@/components/RoutineView'
 import type { Block, SavedRoutine, SlotDetail } from '@/types/routine'
 
@@ -34,6 +35,7 @@ export default function ViewRoutinePage({
   const [openSwap, setOpenSwap] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [updated, setUpdated] = useState(false)
 
   useEffect(() => {
     try {
@@ -59,6 +61,17 @@ export default function ViewRoutinePage({
       }
     ))
     setOpenSwap(null)
+  }
+
+  function handleUpdate() {
+    if (!routine) return
+    const updated: SavedRoutine = { ...routine, blocks }
+    const existing: SavedRoutine[] = (() => {
+      try { return JSON.parse(localStorage.getItem('q_routines') ?? '[]') } catch { return [] }
+    })()
+    localStorage.setItem('q_routines', JSON.stringify(existing.map(r => r.id === routine.id ? updated : r)))
+    setUpdated(true)
+    setTimeout(() => setUpdated(false), 2000)
   }
 
   function handleTeachAgain() {
@@ -139,12 +152,34 @@ export default function ViewRoutinePage({
               {saved ? 'Saved' : 'Save as new routine'}
             </button>
           ) : (
-            <button
-              onClick={handleTeachAgain}
-              className="w-full h-14 rounded-2xl font-semibold text-base bg-forest text-canvas transition-all active:opacity-80"
-            >
-              Teach again
-            </button>
+            <div className="flex flex-col gap-3">
+              {routine.spotifyPlaylistUrl && (
+                <a
+                  href={routine.spotifyPlaylistUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full h-14 rounded-2xl font-semibold text-base border-2 flex items-center justify-center gap-2 transition-all active:opacity-80"
+                  style={{ borderColor: '#1DB954', color: '#1DB954' }}
+                >
+                  <IconBrandSpotify size={18} stroke={1.5} />
+                  Open playlist in Spotify
+                </a>
+              )}
+              <button
+                onClick={handleUpdate}
+                className={`w-full h-14 rounded-2xl font-semibold text-base border-2 border-forest transition-all active:opacity-80 ${
+                  updated ? 'bg-forest text-canvas' : 'bg-canvas text-forest'
+                }`}
+              >
+                {updated ? 'Routine updated ✓' : 'Update routine'}
+              </button>
+              <button
+                onClick={handleTeachAgain}
+                className="w-full h-14 rounded-2xl font-semibold text-base bg-forest text-canvas transition-all active:opacity-80"
+              >
+                Teach again
+              </button>
+            </div>
           )
         }
       />

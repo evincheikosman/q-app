@@ -40,4 +40,6 @@ export interface SavedRoutine {
   tldr: Tldr
   totalMinutes: number
   blocks: Block[]
+  spotifyPlaylistUrl?: string | null
+  playlistTracks?: Array<{ track: string; artist: string; block: string; albumArt?: string | null }>
 }
