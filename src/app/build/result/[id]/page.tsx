@@ -276,7 +276,7 @@ export default function ViewRoutinePage({
 
   async function handleGeneratePlaylist() {
     if (!routine || genLoading) return
-    if (!session?.accessToken) {
+    if (!session?.accessToken || session.error) {
       signIn('spotify')
       return
     }
@@ -343,7 +343,7 @@ export default function ViewRoutinePage({
 
   async function handleSaveToSpotify() {
     if (!routine || savingToSpotify) return
-    if (!session?.accessToken) {
+    if (!session?.accessToken || session.error) {
       signIn('spotify')
       return
     }
@@ -537,9 +537,11 @@ export default function ViewRoutinePage({
                   >
                     {genLoading
                       ? 'Q is curating…'
-                      : session?.accessToken
+                      : session?.accessToken && !session.error
                         ? 'Generate playlist'
-                        : 'Connect Spotify to generate'}
+                        : session?.error
+                          ? 'Reconnect Spotify — session expired'
+                          : 'Connect Spotify to generate'}
                   </button>
                   {genError && <p className="text-xs" style={{ color: '#C24B37' }}>{genError}</p>}
                 </div>
@@ -557,9 +559,11 @@ export default function ViewRoutinePage({
                   <IconBrandSpotify size={16} stroke={1.5} />
                   {savingToSpotify
                     ? 'Saving…'
-                    : session?.accessToken
+                    : session?.accessToken && !session.error
                       ? 'Save playlist to Spotify'
-                      : 'Connect Spotify to save this playlist'}
+                      : session?.error
+                        ? 'Reconnect Spotify — session expired'
+                        : 'Connect Spotify to save this playlist'}
                 </button>
               )}
 

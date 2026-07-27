@@ -301,14 +301,14 @@ export default function ResultPage() {
           </div>
 
           {/* ── Generate Playlist ── */}
-          {!session ? (
+          {!session || session.error ? (
             <button
               onClick={() => signIn('spotify')}
               className="w-full h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2 text-white transition-all active:opacity-80"
               style={{ backgroundColor: '#1DB954' }}
             >
               <IconBrandSpotify size={20} stroke={1.8} />
-              Connect Spotify to build the playlist
+              {session?.error ? 'Reconnect Spotify — session expired' : 'Connect Spotify to build the playlist'}
             </button>
           ) : (
             <button
