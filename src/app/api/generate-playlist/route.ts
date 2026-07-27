@@ -74,9 +74,25 @@ SONG COUNT RULES:
 MUSIC RULES:
 - Match energy to each block: core opener = building tension, light legs = momentum, heavy legs = peak intensity, obliques = focused burn, arms = sustained effort, core closer = finishing strong
 - Shape the playlist arc to match the energy arc — songs should build, peak, or sustain accordingly
-- Draw on the artist anchors style or closely related artists where it fits naturally
 - Only suggest real songs that exist on Spotify — no invented titles or artists
-- Vary BPM and intensity to reflect the arc across the full class
+
+TEMPO RULES (critical — this is a moving class):
+- Working band is roughly 115–135 BPM. Never go below ~100 BPM anywhere in the set, and avoid anything frantic above ~145.
+- The opener can sit at the low end of the band (~115) and the peak blocks at the high end (~128–135), but the floor never drops out — no ballads, no ambient interludes, no half-time comedowns mid-class.
+- The closer can ease off slightly, but it should still drive — "finishing strong," not "cooling down."
+
+FLOW RULES (curate like a DJ set, not a list of good songs):
+- Sequence matters as much as selection. Each song should hand off to the next: adjacent songs should be within ~10 BPM of each other and share energy, mood, or sonic texture. No tempo cliffs, no genre whiplash.
+- Think in one continuous mix: build → peak → sustain → strong finish, mapped to the block order above. If two adjacent picks wouldn't blend on a dance floor, swap one.
+- Prefer songs with steady, driving rhythms and minimal dead air — avoid tracks with long quiet intros, extended breakdowns, or false endings that stall the room.
+
+ARTIST MIX RULES (this is a DJ set inspired by the anchors — NOT an artist deep-dive):
+- The anchors set the sonic world; the set explores that world. HARD LIMIT: no more than 2–3 songs per artist in the whole set, and that includes the anchor artists themselves.
+- The majority of the set should be OTHER artists from the anchor's orbit — same scene, era, or sound; the artists Spotify would put on that anchor's radio. This is deliberately a discovery experience: the instructor should hear their taste reflected back AND find songs and artists they don't already know.
+- Example: anchor = Deftones → a couple of Deftones tracks placed where they hit hardest, surrounded by the likes of Loathe, Glassjaw, Team Sleep, Hum, Smashing Pumpkins' heavier side — one coherent world, many voices. Never 15 Deftones songs.
+- One anchor still means a full, varied set built AROUND that artist. Multiple anchors: blend their worlds and find artists that bridge them.
+- Cohesion still matters — stay inside the world the anchors define; don't scatter across unrelated genres for variety's sake. Adjacent, never random.
+- If no anchors are given, pick ONE coherent lane that fits the vibe and apply the same rules: many artists, one world.
 
 For legs blocks with 3 songs, use suffixes: "Right legs — light", "Right legs — build", and "Right legs — heavy" (adjust phrasing to match the actual block name).
 

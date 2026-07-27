@@ -3,10 +3,38 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { IconStar, IconSearch, IconChevronRight, IconBrandSpotify } from '@tabler/icons-react'
+import { ScribbleArrow, PenNote, Highlight } from '@/components/Scribble'
+import { estimateDifficulty } from '@/lib/difficulty'
 import type { SavedRoutine } from '@/types/routine'
 
 function formatSavedAt(ts: number) {
   return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+// Same spring palette as RoutineView — the real Lagree spring colors
+const SPRING_COLORS: Record<string, string> = {
+  yellow: '#E7C93F',
+  red: '#C24B37',
+  blue: '#2E51E6',
+  green: '#3E7C4F',
+  black: '#111418',
+  white: '#D9D4CA',
+}
+
+/** Distinct spring colors used across a routine's blocks, in first-use order */
+function springsUsed(routine: SavedRoutine): string[] {
+  const seen: string[] = []
+  for (const b of routine.blocks) {
+    for (const m of b.spring.matchAll(/(\d+)\s*(yellow|red|blue|green|black|white)/gi)) {
+      const c = SPRING_COLORS[m[2].toLowerCase()]
+      if (c && !seen.includes(c)) seen.push(c)
+    }
+  }
+  return seen
+}
+
+function routineMinutes(routine: SavedRoutine): number {
+  return routine.blocks.reduce((s, b) => s + b.moves.reduce((a, m) => a + (m.duration || 1), 0), 0)
 }
 
 export default function LibraryPage() {
@@ -40,9 +68,14 @@ export default function LibraryPage() {
   const rest = filtered.filter(r => !r.favorited)
 
   return (
-    <div className="px-5 pt-12 pb-8 flex flex-col gap-6 max-w-lg mx-auto w-full">
+    <div className="px-5 pt-12 pb-8 flex flex-col gap-6 max-w-lg mx-auto w-full relative">
 
-      <h1 className="text-3xl font-extrabold text-ink">Library</h1>
+      <h1
+        className="font-extrabold text-ink"
+        style={{ fontSize: '34px', lineHeight: 1, fontVariationSettings: "'opsz' 96" }}
+      >
+        Library
+      </h1>
 
       {/* Search */}
       <div className="relative">
@@ -55,17 +88,41 @@ export default function LibraryPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search routines…"
-          className="w-full bg-surface rounded-2xl pl-10 pr-4 py-3.5 text-sm text-ink placeholder:text-stone/60 outline-none border-2 border-transparent focus:border-forest transition-colors"
+          className="w-full bg-surface rounded-2xl pl-10 pr-4 py-3.5 text-sm text-ink placeholder:text-stone/60 outline-none border-2 border-border focus:border-powder transition-colors"
         />
       </div>
 
       {routines.length === 0 ? (
-        <div className="bg-surface rounded-2xl px-5 py-14 flex flex-col items-center text-center gap-1 mt-2">
-          <p className="text-sm font-medium text-stone">No saved routines yet.</p>
-          <p className="text-sm text-stone opacity-70">Build and save your first.</p>
+        <div className="rounded-3xl px-5 pt-12 pb-10 flex flex-col items-center text-center gap-2 mt-2 shadow-card bg-white border border-border relative overflow-hidden">
+          <span
+            aria-hidden
+            className="absolute font-extrabold pointer-events-none select-none"
+            style={{
+              left: '-22px',
+              top: '-26px',
+              fontSize: '150px',
+              lineHeight: 1,
+              color: '#AEC8F5',
+              opacity: 0.25,
+              fontVariationSettings: "'opsz' 96",
+            }}
+          >
+            Q
+          </span>
+          <p className="text-base font-bold text-ink relative">An empty shelf, for now.</p>
+          <p className="text-sm text-stone relative max-w-[240px]">
+            Every routine you save lands <Highlight>here</Highlight> —
+            searchable, favoritable, reusable.
+          </p>
+          <div className="relative mt-1 flex flex-col items-center">
+            <ScribbleArrow width={52} style={{ transform: 'scaleX(-1) rotate(10deg)' }} />
+            <Link href="/build" className="text-sm font-bold mt-1 text-ink underline decoration-powder decoration-2 underline-offset-4">
+              Build your first →
+            </Link>
+          </div>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-surface rounded-2xl px-5 py-10 flex flex-col items-center text-center gap-1">
+        <div className="rounded-2xl px-5 py-10 flex flex-col items-center text-center gap-1 shadow-card bg-white">
           <p className="text-sm font-medium text-stone">No results for &ldquo;{search}&rdquo;</p>
         </div>
       ) : (
@@ -73,7 +130,10 @@ export default function LibraryPage() {
           {/* Favorites */}
           {favorites.length > 0 && (
             <section className="flex flex-col gap-3">
-              <h2 className="text-xs font-medium tracking-widest uppercase text-stone">Favorites</h2>
+              <h2 className="flex items-center gap-2 text-xs font-medium tracking-widest uppercase text-stone">
+                <span className="w-1.5 h-1.5 rounded-full bg-powder shrink-0" />
+                Favorites
+              </h2>
               <div className="flex flex-col gap-2">
                 {favorites.map(r => (
                   <RoutineCard key={r.id} routine={r} onToggleFavorite={toggleFavorite} />
@@ -86,7 +146,10 @@ export default function LibraryPage() {
           {rest.length > 0 && (
             <section className="flex flex-col gap-3">
               {favorites.length > 0 && (
-                <h2 className="text-xs font-medium tracking-widest uppercase text-stone">All routines</h2>
+                <h2 className="flex items-center gap-2 text-xs font-medium tracking-widest uppercase text-stone">
+                  <span className="w-1.5 h-1.5 rounded-full bg-powder shrink-0" />
+                  All routines
+                </h2>
               )}
               <div className="flex flex-col gap-2">
                 {rest.map(r => (
@@ -112,13 +175,18 @@ function RoutineCard({
   return (
     <Link
       href={`/build/result/${routine.id}`}
-      className="bg-surface rounded-2xl px-5 py-4 flex flex-col gap-3 border-2 border-transparent hover:border-border cursor-pointer transition-colors"
+      className="bg-white rounded-2xl px-5 py-4 flex flex-col gap-3 cursor-pointer shadow-card"
     >
       <div className="flex items-center gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-ink leading-snug">{routine.name}</p>
-          <p className="text-xs text-stone mt-0.5">
-            {formatSavedAt(routine.savedAt)}&nbsp;&middot;&nbsp;{routine.tldr.focus}
+          <p className="text-sm font-bold text-ink leading-snug">{routine.name}</p>
+          <p className="text-xs text-stone mt-0.5 flex items-center gap-1.5">
+            <span>
+              {formatSavedAt(routine.savedAt)}&nbsp;&middot;&nbsp;{routine.tldr.focus}
+            </span>
+            <PenNote size={13} rotate="-2deg">
+              {estimateDifficulty(routine.blocks)}
+            </PenNote>
           </p>
         </div>
         <button
@@ -129,7 +197,8 @@ function RoutineCard({
           <IconStar
             size={18}
             stroke={1.8}
-            className={routine.favorited ? 'text-forest fill-forest' : 'text-stone'}
+            style={routine.favorited ? { color: '#AEC8F5', fill: '#AEC8F5' } : undefined}
+            className={routine.favorited ? undefined : 'text-stone'}
           />
         </button>
         <IconChevronRight size={16} stroke={1.8} className="text-stone shrink-0" />
@@ -140,6 +209,18 @@ function RoutineCard({
           <span className="font-medium text-ink">Energy:</span> {routine.energyArc}
         </p>
       )}
+
+      {/* Scent for scanning: springs used + block/minute totals at a glance */}
+      <div className="flex items-center gap-2">
+        <span className="flex items-center gap-1">
+          {springsUsed(routine).map((c, i) => (
+            <span key={i} className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} />
+          ))}
+        </span>
+        <span className="text-[11px] font-semibold text-stone">
+          {routine.blocks.length} blocks · {routineMinutes(routine)} min
+        </span>
+      </div>
 
       {routine.spotifyPlaylistUrl && (
         <a

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<!--
+  Q Mark Loading Animation — Prototype
+  Status: DONE — clipping bug fixed. Glyph is positioned from real font metrics
+  (actualBoundingBoxAscent/Descent) and vertically centered, with an auto-shrink
+  guard, so it cannot clip at any canvas size.
+
+  How it works:
+  - Renders actual Bricolage Grotesque 800 Q on an offscreen canvas (real font, not SVG)
+  - Progressively reveals it using a clip-mask of circles following the amber dot
+  - State machine: pulse → draw → hold → fadeout → loop
+
+  Path: starts at 6 o'clock (bottom of bowl), sweeps clockwise (left-first):
+    bottom → left (9) → top (12) → right (3) → tail exit (~4-5 o'clock)
+    then left-to-right along the tail stroke
+
+  Spring exit: damped oscillation along tail axis, fades elegantly
+
+-->
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&display=block" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #F6F1E9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 56px;
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+.col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.label { font-size: 10px; font-weight: 500; letter-spacing: 3px; color: #7A7570; text-transform: uppercase; }
+.sub { font-size: 9px; color: #7A7570; opacity: 0.5; margin-top: 2px; }
+.screen {
+  background: #1B3828;
+  border-radius: 22px;
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.screen-label {
+  font-size: 9px; font-weight: 500; letter-spacing: 3px;
+  color: rgba(246,241,233,0.35); text-transform: uppercase;
+}
+.bar-wrap { width: 80px; height: 1.5px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; background: #C4973A; border-radius: 2px; width: 0; }
+</style>
+</head>
+<body>
+
+<div class="col">
+  <canvas id="mark"></canvas>
+  <span class="label">The Mark</span>
+  <span class="sub">Loops</span>
+</div>
+
+<div class="col">
+  <div class="screen">
+    <canvas id="load"></canvas>
+    <div class="screen-label">Building your class</div>
+    <div class="bar-wrap"><div class="bar-fill" id="bar"></div></div>
+  </div>
+  <span class="label">Loading Screen</span>
+</div>
+
+<script>
+const PULSE_DUR  = 1000;
+const DRAW_DUR   = 3400;
+const HOLD_DUR   = 1600;
+const FADE_DUR   =  600;
+const TOTAL_LOOP = PULSE_DUR + DRAW_DUR + HOLD_DUR + FADE_DUR + 200;
+
+function buildQ(canvas, lw, lh, fs, qColor, dotColor) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const PW = lw * dpr, PH = lh * dpr, PF = fs * dpr;
+
+  canvas.width  = PW; canvas.height = PH;
+  canvas.style.width  = lw + 'px';
+  canvas.style.height = lh + 'px';
+  const ctx = canvas.getContext('2d');
+
+  // Off-screen Q at full DPR resolution
+  const off = mk(PW, PH);
+  const oc  = off.getContext('2d');
+  let F = PF; // effective font size (may shrink to fit)
+  oc.font = `800 ${F}px 'Bricolage Grotesque'`;
+  let meas = oc.measureText('Q');
+  // Position + fit from real glyph metrics, BOTH axes — cannot clip.
+  let asc  = meas.actualBoundingBoxAscent;
+  let desc = meas.actualBoundingBoxDescent;
+  let bbL  = meas.actualBoundingBoxLeft;
+  let bbR  = meas.actualBoundingBoxRight;
+  const pad = Math.min(PW, PH) * 0.04;
+  const fit = Math.min(1, (PH - pad*2) / (asc + desc), (PW - pad*2) / (bbL + bbR));
+  if (fit < 1) {
+    F = Math.floor(F * fit);
+    oc.font = `800 ${F}px 'Bricolage Grotesque'`;
+    meas = oc.measureText('Q');
+    asc = meas.actualBoundingBoxAscent; desc = meas.actualBoundingBoxDescent;
+    bbL = meas.actualBoundingBoxLeft;   bbR = meas.actualBoundingBoxRight;
+  }
+  const inkW = bbL + bbR;
+  const QX = (PW - inkW) / 2 + bbL; // ink-centered origin
+  const QY = (PH - (asc + desc)) / 2 + asc;
+  oc.fillStyle = qColor;
+  oc.fillText('Q', QX, QY);
+
+  // Ink box
+  const inkL = QX - bbL, inkR = QX + bbR;
+  const inkT = QY - asc, inkB = QY + desc;
+
+  // Geometry derived from measured ink box (bowl ≈ ink-top → baseline; tail below)
+  const strokeHalf = F * 0.10;
+  const CX = (inkL + inkR) / 2;
+  const CY = inkT + asc * 0.5;
+  const RX = inkW / 2 - strokeHalf;
+  const RY = asc / 2 - strokeHalf;
+  const CLIP_R = F * 0.24;
+  const DOT_R  = F * 0.054;
+
+  // Mask + work canvases
+  const maskC = mk(PW, PH), mc = maskC.getContext('2d');
+  const workC = mk(PW, PH), wc = workC.getContext('2d');
+
+  // Continuous three-segment path (no jumps):
+  // 1. Bowl: 6 → 9 → 12 → 3 → back to ~6 (nearly full circle)
+  // 2. Zigzag: dip down-left from bowl bottom into the LEFT tip of the tail swash
+  // 3. Tail: ride the swash left-to-right off the tip
+  const ARC_SWEEP = 344 * Math.PI / 180;
+  const arcEndA = Math.PI / 2 + ARC_SWEEP;
+  const arcEX = CX + RX * Math.cos(arcEndA);
+  const arcEY = CY + RY * Math.sin(arcEndA);
+  const tailLX = inkL + strokeHalf * 0.6;  // left tip of swash
+  const tailLY = QY + desc * 0.45;
+  const tailEX = inkR - strokeHalf * 0.6;  // right tip of swash
+  const tailEY = inkB - strokeHalf;
+  const tailNLen = Math.hypot(tailEX - tailLX, tailEY - tailLY) || 1;
+  const tailNX = (tailEX - tailLX) / tailNLen;
+  const tailNY = (tailEY - tailLY) / tailNLen;
+
+  function cubic(u, p0x, p0y, c1x, c1y, c2x, c2y, p1x, p1y) {
+    const v = 1 - u;
+    return {
+      x: v*v*v*p0x + 3*v*v*u*c1x + 3*v*u*u*c2x + u*u*u*p1x,
+      y: v*v*v*p0y + 3*v*v*u*c1y + 3*v*u*u*c2y + u*u*u*p1y
+    };
+  }
+
+  const A1 = 0.68, A2 = 0.80;
+
+  function getPoint(t) {
+    if (t <= A1) {
+      const a = Math.PI / 2 + (t / A1) * ARC_SWEEP;
+      return { x: CX + RX * Math.cos(a), y: CY + RY * Math.sin(a) };
+    }
+    if (t <= A2) {
+      const u = (t - A1) / (A2 - A1);
+      return cubic(u, arcEX, arcEY,
+        arcEX - RX * 0.55, arcEY + F * 0.06,
+        tailLX + F * 0.18, tailLY - F * 0.10,
+        tailLX, tailLY);
+    }
+    const u = (t - A2) / (1 - A2);
+    return tailPoint(u);
+  }
+
+  // Point along the tail swash, u: 0 = left tip, 1 = right tip
+  function tailPoint(u) {
+    return cubic(u, tailLX, tailLY,
+      tailLX + (tailEX - tailLX) * 0.35, tailLY + F * 0.09,
+      tailLX + (tailEX - tailLX) * 0.70, tailEY - F * 0.07,
+      tailEX, tailEY);
+  }
+
+  function compositeWork() {
+    wc.clearRect(0, 0, PW, PH);
+    wc.drawImage(off, 0, 0);
+    wc.globalCompositeOperation = 'destination-in';
+    wc.drawImage(maskC, 0, 0);
+    wc.globalCompositeOperation = 'source-over';
+  }
+
+  function drawDot(x, y, r, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
+    g.addColorStop(0,   dotColor + 'BB');
+    g.addColorStop(0.4, dotColor + '55');
+    g.addColorStop(1,   'transparent');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r * 3, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = dotColor;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill();
+    ctx.restore();
+  }
+
+  // State machine
+  let phase = 'pulse', t0 = null, lastP = null;
+
+  function maskCircle(x, y, r) {
+    mc.beginPath(); mc.arc(x, y, r, 0, 2*Math.PI); mc.fill();
+  }
+
+  function tick(ts) {
+    if (!t0) t0 = ts;
+    const el = ts - t0;
+
+    if (phase === 'pulse') {
+      // Just a pulsing amber dot — nothing revealed yet
+      const p0 = getPoint(0);
+      const s = 1 + 0.22 * Math.sin((el / PULSE_DUR) * Math.PI * 3);
+      ctx.clearRect(0, 0, PW, PH);
+      drawDot(p0.x, p0.y, DOT_R * s, 1);
+      if (el >= PULSE_DUR) { phase = 'draw'; t0 = ts; }
+
+    } else if (phase === 'draw') {
+      const prog = Math.min(el / DRAW_DUR, 1);
+      const ease = prog < .5 ? 4*prog**3 : 1 - (-2*prog+2)**3/2;
+      const p    = getPoint(ease);
+
+      mc.fillStyle = '#fff';
+      // Reveal radius blooms up from the dot at the start of the draw
+      const rr = CLIP_R * Math.min(1, 0.25 + ease * 6);
+      // While tracing the bowl, clip reveal to bowl region — tail stays hidden
+      const bowlOnly = ease <= A1;
+      // Boundary sits above baseline — swash top rises slightly past it
+      if (bowlOnly) { mc.save(); mc.beginPath(); mc.rect(0, 0, PW, QY - F * 0.07); mc.clip(); }
+      // Interpolate between frames so fast segments leave no gaps
+      if (lastP) {
+        const d = Math.hypot(p.x - lastP.x, p.y - lastP.y);
+        const n = Math.ceil(d / (rr * 0.4));
+        for (let i = 1; i <= n; i++) {
+          const k = i / n;
+          maskCircle(lastP.x + (p.x - lastP.x) * k, lastP.y + (p.y - lastP.y) * k, rr);
+        }
+      } else {
+        maskCircle(p.x, p.y, rr);
+      }
+      if (bowlOnly) mc.restore();
+      lastP = p;
+      // Flood mask at end of draw — guarantees FULL Q (tail included) is visible
+      if (prog >= 1) mc.fillRect(0, 0, PW, PH);
+      compositeWork();
+
+      ctx.clearRect(0, 0, PW, PH);
+      ctx.drawImage(workC, 0, 0);
+      // Dot fades during its final left-to-right run along the tail
+      const dotAlpha = ease <= A2 ? 1 : 1 - (ease - A2) / (1 - A2);
+      if (dotAlpha > 0.01) drawDot(p.x, p.y, DOT_R, dotAlpha);
+
+      if (prog >= 1) { phase = 'hold'; t0 = ts; }
+
+    } else if (phase === 'hold') {
+      ctx.clearRect(0, 0, PW, PH);
+      ctx.drawImage(workC, 0, 0);
+      if (el >= HOLD_DUR) { phase = 'fadeout'; t0 = ts; }
+
+    } else if (phase === 'fadeout') {
+      const t = Math.min(el / FADE_DUR, 1);
+      ctx.clearRect(0, 0, PW, PH);
+      ctx.globalAlpha = 1 - t;
+      ctx.drawImage(workC, 0, 0);
+      ctx.globalAlpha = 1;
+      if (t >= 1) { mc.clearRect(0, 0, PW, PH); phase = 'pulse'; t0 = null; lastP = null; }
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
+
+function mk(w, h) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  return c;
+}
+
+document.fonts.load("800 400px 'Bricolage Grotesque'").then(() => {
+  buildQ(document.getElementById('mark'), 240, 270, 200, '#1B3828', '#C4973A');
+  buildQ(document.getElementById('load'), 134, 150, 112, '#F6F1E9', '#C4973A');
+
+  const bar = document.getElementById('bar');
+  function animBar() {
+    bar.style.transition = 'none'; bar.style.width = '0%';
+    requestAnimationFrame(() => {
+      bar.style.transition = `width ${DRAW_DUR}ms cubic-bezier(0.4,0,0.2,1)`;
+      bar.style.width = '100%';
+    });
+    setTimeout(animBar, TOTAL_LOOP);
+  }
+  animBar();
+});
+</script>
+</body>
+</html>

@@ -40,6 +40,9 @@ export interface SavedRoutine {
   tldr: Tldr
   totalMinutes: number
   blocks: Block[]
+  classLevel?: string | null
+  moveNotes?: string | null
+  builtToOrder?: string[]
   spotifyPlaylistUrl?: string | null
   playlistTracks?: Array<{ track: string; artist: string; block: string; albumArt?: string | null }>
 }

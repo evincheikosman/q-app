@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
+import { useSession, signIn } from 'next-auth/react'
 import { IconBrandSpotify, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-react'
 import RoutineView from '@/components/RoutineView'
+import QMarkLoader from '@/components/QMarkLoader'
 import type { Block, SlotDetail, SavedRoutine } from '@/types/routine'
 
 interface TempRoutine {
@@ -18,6 +19,9 @@ interface TempRoutine {
   energyArc: string | null
   selectedEmphasis: string[]
   vibe: string
+  classLevel?: string | null
+  moveNotes?: string | null
+  builtToOrder?: string[]
 }
 
 interface PlaylistTrack {
@@ -66,6 +70,8 @@ export default function ResultPage() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [playingIndex, setPlayingIndex] = useState<number | null>(null)
+  const [loadingPreview, setLoadingPreview] = useState<number | null>(null)
+  const [noPreview, setNoPreview] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     const stored = localStorage.getItem('q_routine')
@@ -83,21 +89,48 @@ export default function ResultPage() {
     return () => { audioRef.current?.pause() }
   }, [])
 
-  function handlePlayPause(index: number, previewUrl: string) {
+  /** Spotify removed 30s previews from its API for most apps — when a track has
+   *  no previewUrl, fall back to the same song's preview from the iTunes catalog. */
+  async function resolvePreview(track: PlaylistTrack): Promise<string | null> {
+    if (track.previewUrl) return track.previewUrl
+    try {
+      const q = encodeURIComponent(
+        `${track.artistName ?? track.artist} ${track.trackName ?? track.songTitle}`
+      )
+      const res = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&limit=1`)
+      const data = await res.json()
+      return data.results?.[0]?.previewUrl ?? null
+    } catch {
+      return null
+    }
+  }
+
+  async function handlePlayPause(index: number, track: PlaylistTrack) {
     if (playingIndex === index) {
       audioRef.current?.pause()
       setPlayingIndex(null)
-    } else {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.onended = null
-      }
-      const audio = new Audio(previewUrl)
-      audio.onended = () => setPlayingIndex(null)
-      audio.play().catch(() => {})
-      audioRef.current = audio
-      setPlayingIndex(index)
+      return
     }
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.onended = null
+    }
+    setLoadingPreview(index)
+    const url = await resolvePreview(track)
+    setLoadingPreview(null)
+    if (!url) {
+      setNoPreview(prev => new Set(prev).add(index))
+      return
+    }
+    // cache it so replays are instant
+    setPlaylist(prev =>
+      prev ? prev.map((t, i) => (i === index ? { ...t, previewUrl: url } : t)) : prev
+    )
+    const audio = new Audio(url)
+    audio.onended = () => setPlayingIndex(null)
+    audio.play().catch(() => {})
+    audioRef.current = audio
+    setPlayingIndex(index)
   }
 
   function swapMove(bi: number, mi: number, newName: string) {
@@ -127,6 +160,9 @@ export default function ResultPage() {
       energyArc: temp.energyArc ?? null,
       selectedEmphasis: temp.selectedEmphasis ?? [],
       vibe: temp.vibe ?? '',
+      classLevel: temp.classLevel ?? null,
+      moveNotes: temp.moveNotes ?? null,
+      builtToOrder: temp.builtToOrder ?? [],
       favorited: false,
       classOpener: temp.classOpener,
       tldr: temp.tldr,
@@ -232,7 +268,7 @@ export default function ResultPage() {
   if (!temp) {
     return (
       <div className="flex items-center justify-center h-[calc(100dvh-72px)]">
-        <p className="text-sm text-stone">Loading…</p>
+        <QMarkLoader />
       </div>
     )
   }
@@ -242,10 +278,12 @@ export default function ResultPage() {
       classOpener={temp.classOpener}
       tldr={temp.tldr}
       totalMinutes={temp.totalMinutes}
+      builtToOrder={temp.builtToOrder}
       blocks={blocks}
       openSwap={openSwap}
       onOpenSwap={setOpenSwap}
       onSwapMove={swapMove}
+      onUpdateBlocks={setBlocks}
       footer={
         <>
           {/* ── Artist anchors ── */}
@@ -264,9 +302,14 @@ export default function ResultPage() {
 
           {/* ── Generate Playlist ── */}
           {!session ? (
-            <p className="text-sm font-medium text-center text-stone py-1">
-              Connect Spotify to generate a playlist
-            </p>
+            <button
+              onClick={() => signIn('spotify')}
+              className="w-full h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2 text-white transition-all active:opacity-80"
+              style={{ backgroundColor: '#1DB954' }}
+            >
+              <IconBrandSpotify size={20} stroke={1.8} />
+              Connect Spotify to build the playlist
+            </button>
           ) : (
             <button
               onClick={handleGeneratePlaylist}
@@ -305,11 +348,13 @@ export default function ResultPage() {
                     )}
                     <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        {track.previewUrl && (
+                        {!noPreview.has(i) && (
                           <button
-                            onClick={() => handlePlayPause(i, track.previewUrl!)}
-                            aria-label={playingIndex === i ? 'Pause' : 'Play preview'}
-                            className="text-forest shrink-0 transition-opacity active:opacity-60"
+                            onClick={() => handlePlayPause(i, track)}
+                            aria-label={playingIndex === i ? 'Pause' : 'Play 30-second preview'}
+                            className={`text-forest shrink-0 transition-opacity active:opacity-60 ${
+                              loadingPreview === i ? 'animate-pulse opacity-50' : ''
+                            }`}
                           >
                             {playingIndex === i
                               ? <IconPlayerPause size={16} stroke={2} />
@@ -375,7 +420,7 @@ export default function ResultPage() {
               onClick={handleSave}
               disabled={saving}
               className={`w-full h-14 rounded-2xl font-semibold text-base transition-all active:opacity-80 disabled:opacity-80 ${
-                saved ? 'bg-moss text-canvas' : 'bg-forest text-canvas'
+                saved ? 'bg-moss text-white' : 'bg-forest text-white'
               }`}
             >
               {saved ? 'Routine saved' : 'Save routine'}

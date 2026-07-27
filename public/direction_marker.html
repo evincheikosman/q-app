@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--
+  Q — Direction "MARKER"
+  The inspo board, honestly: black & white photography, ink type, ONE hot signal
+  red doing all the accent work, bold marker handwriting. No pastels. No navy.
+  (Ana Jords annotations + "Our Trip to Japan" red-on-B&W + editorial poster type.)
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #1A1A1A;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  display: flex; align-items: flex-start; justify-content: center;
+  gap: 48px; min-height: 100vh; padding: 48px; flex-wrap: wrap;
+}
+.col { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.lbl { color: #888; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600; }
+
+:root {
+  --paper: #FFFFFF;
+  --ink: #141414;
+  --red: #E63A21;   /* signal red — the ONLY accent */
+  --grey: #8A8A8A;
+  --line: #E8E8E6;
+}
+.marker { font-family: 'Permanent Marker', cursive; }
+
+.phone {
+  width: 390px; height: 830px; border-radius: 40px; overflow: hidden;
+  display: flex; flex-direction: column; background: var(--paper); color: var(--ink);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+}
+.scroll { flex: 1; overflow: hidden; }
+.pad { padding: 0 22px; }
+
+/* ── HOME ── */
+.date { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-top: 26px; color: var(--grey); }
+.greet { font-size: 42px; font-weight: 800; line-height: 0.98; margin-top: 8px; font-variation-settings: 'opsz' 96; letter-spacing: -0.5px; }
+.greet em { font-style: normal; color: var(--red); }
+
+.next { margin-top: 26px; border-top: 3px solid var(--ink); padding-top: 14px; position: relative; }
+.next .nl { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; color: var(--red); }
+.next .day { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey); margin-top: 10px; font-weight: 600; }
+.next .time { font-size: 76px; font-weight: 800; line-height: 0.95; font-variation-settings: 'opsz' 96; letter-spacing: -2px; margin-top: 2px; }
+.next .time span { color: var(--red); }
+.next .more { margin-top: 6px; font-size: 12px; color: var(--grey); }
+.next .note { position: absolute; right: 0; top: 46px; text-align: right; color: var(--red); font-size: 15px; transform: rotate(-4deg); line-height: 1.25; }
+.cta { margin-top: 18px; background: var(--red); color: #fff; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; letter-spacing: 0.3px; }
+
+.photo { margin-top: 26px; border-radius: 18px; overflow: hidden; position: relative; height: 250px; }
+.photo img { width: 100%; height: 100%; object-fit: cover; filter: contrast(1.02); display: block; }
+.photo .cap { position: absolute; left: 16px; bottom: 14px; color: #fff; }
+.photo .cap .k { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; color: #fff; opacity: 0.85; }
+.photo .cap .h { font-size: 19px; font-weight: 800; margin-top: 2px; }
+.photo .grad { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.62) 100%); }
+
+.cue { margin-top: 26px; border-left: 4px solid var(--red); padding: 2px 0 4px 16px; }
+.cue .ct { color: var(--red); font-size: 17px; transform: rotate(-1.5deg); display: inline-block; }
+.cue .cf { font-size: 13.5px; line-height: 1.55; color: var(--ink); margin-top: 6px; }
+
+/* ── YOUR CUE poster ── */
+.poster { position: relative; height: 830px; }
+.poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+.poster .veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.30) 0%, transparent 30%, transparent 52%, rgba(0,0,0,0.78) 100%); }
+.poster .name { position: absolute; top: 18px; left: 20px; color: var(--red); font-size: 56px; transform: rotate(-3deg); text-shadow: 0 1px 0 rgba(0,0,0,0.15); }
+.poster .arch { position: absolute; top: 42px; right: 20px; text-align: right; color: #fff; font-size: 19px; transform: rotate(-2deg); }
+.poster .arch small { display: block; color: var(--red); font-size: 26px; margin-top: 2px; transform: rotate(-1deg); }
+.poster .stats { position: absolute; left: 20px; bottom: 218px; color: var(--red); font-size: 18px; line-height: 1.7; transform: rotate(-1deg); }
+.poster .stats .w { color: #fff; }
+.poster .cred { position: absolute; left: 20px; bottom: 190px; color: rgba(255,255,255,0.85); font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 700; }
+.poster .big { position: absolute; left: 0; right: 0; bottom: 18px; padding: 0 18px; color: #fff; font-weight: 800; font-size: 44px; line-height: 0.96; font-variation-settings: 'opsz' 96; letter-spacing: -1px; }
+.poster .big span { color: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="col">
+  <div class="phone">
+    <div class="scroll">
+      <div class="pad">
+        <p class="date">Wednesday, July 8</p>
+        <h1 class="greet">Good morning,<br>Evîn<em>.</em></h1>
+
+        <div class="next">
+          <p class="nl">Next class</p>
+          <p class="day">Saturday, July 11</p>
+          <p class="time">11:00<span>AM</span></p>
+          <p class="more">+ 3 more this week</p>
+          <p class="note marker">pack grip<br>socks!</p>
+          <div class="cta">Build routine</div>
+        </div>
+
+        <div class="photo">
+          <img src="/photos/tray-bw.jpg" alt="" style="object-position: 50% 40%">
+          <div class="grad"></div>
+          <div class="cap">
+            <p class="k">Pre-class ritual</p>
+            <p class="h">Grip socks on. Matcha secured.</p>
+          </div>
+        </div>
+
+        <div class="cue">
+          <span class="ct marker">today's cue — lagree</span>
+          <p class="cf">Moving under 10% of your maximum speed eliminates the stretch-shortening cycle. Your muscles generate force from scratch on every rep — harder, and more effective, than it looks.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="lbl">Home — Marker</p>
+</div>
+
+<!-- YOUR CUE -->
+<div class="col">
+  <div class="phone">
+    <div class="poster">
+      <img src="/photos/evin-bw.jpg" alt="Evîn">
+      <div class="veil"></div>
+      <p class="name marker">Evîn</p>
+      <p class="arch marker">she said<br><small>"the architect"</small></p>
+      <p class="stats marker">+ 1 routine built<br>+ glutes &amp; hamstrings<br>+ slow build arc</p>
+      <p class="cred">Certified Lagree Instructor · Core40 SF</p>
+      <p class="big">BUILDS WITH INTENTION.<br><span>NEVER REPEATS.</span></p>
+    </div>
+  </div>
+  <p class="lbl">Your Cue — Marker</p>
+</div>
+
+</body>
+</html>

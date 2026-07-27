@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!--
+  Q — Palette Direction Comparison
+  Same Home screen, three directions:
+  A. TERRA    — current palette, properly executed (cream/forest/amber, ratio fixed)
+  B. MIDNIGHT — near-black ink, cream, amber (drama, still warm)
+  C. HARBOR   — navy/white/black (cool, stark)
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #191919;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  display: flex; align-items: center; justify-content: center;
+  gap: 48px; min-height: 100vh; padding: 48px; flex-wrap: wrap;
+}
+.direction { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.dir-label { color: #999; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600; }
+.dir-sub { color: #666; font-size: 10px; margin-top: -12px; }
+
+.phone {
+  width: 390px; height: 800px; border-radius: 40px; overflow: hidden;
+  display: flex; flex-direction: column; position: relative;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+}
+.scroll { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+/* ── shared structure ── */
+.pad { padding: 0 24px; }
+.date { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-weight: 500; margin-top: 28px; }
+.greet { font-size: 40px; font-weight: 800; line-height: 1.02; margin-top: 8px; font-variation-settings: 'opsz' 96; }
+.hero { border-radius: 26px; padding: 24px; margin-top: 24px; position: relative; overflow: hidden; }
+.hero-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+.pulse-dot { width: 7px; height: 7px; border-radius: 50%; }
+.hero-day { font-size: 11px; margin-top: 14px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.75; }
+.hero-time { font-size: 64px; font-weight: 800; line-height: 1; margin-top: 2px; font-variation-settings: 'opsz' 96; letter-spacing: -1px; }
+.hero-more { font-size: 12px; margin-top: 8px; opacity: 0.7; }
+.hero-cta { margin-top: 18px; border-radius: 16px; height: 52px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+.ghost-q {
+  position: absolute; right: -30px; bottom: -58px; font-size: 190px; font-weight: 800;
+  font-variation-settings: 'opsz' 96; opacity: 0.08; line-height: 1; pointer-events: none;
+}
+.section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-top: 30px; display: flex; align-items: center; gap: 8px; }
+.section-label .amber-dot { width: 6px; height: 6px; border-radius: 50%; }
+.rcard { border-radius: 20px; padding: 18px; margin-top: 12px; }
+.rcard-top { display: flex; justify-content: space-between; align-items: baseline; }
+.rcard-name { font-weight: 700; font-size: 15px; }
+.rcard-meta { font-size: 11px; opacity: 0.65; }
+.rcard-stats { display: flex; gap: 14px; margin-top: 10px; font-size: 11px; }
+.rcard-stats span { display: flex; align-items: center; gap: 5px; }
+.dotm { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+.cue-band { margin-top: 28px; padding: 22px 24px 26px; }
+.cue-band .cb-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; opacity: 0.6; }
+.cue-band .cb-text { font-size: 17px; font-weight: 600; line-height: 1.35; margin-top: 8px; font-style: normal; }
+.nav { height: 68px; display: flex; align-items: center; justify-content: space-around; font-size: 9px; letter-spacing: 0.5px; }
+.nav div { display: flex; flex-direction: column; align-items: center; gap: 5px; font-weight: 600; }
+.nav .ico { width: 18px; height: 18px; border-radius: 6px; opacity: 0.5; }
+.nav .active .ico { opacity: 1; }
+
+/* ═══ A. TERRA — cream / forest / amber, executed ═══ */
+.terra { background: #F6F1E9; color: #0F1A14; }
+.terra .date { color: #7A7570; }
+.terra .hero { background: #1B3828; color: #F6F1E9; }
+.terra .hero-label { color: #C4973A; }
+.terra .pulse-dot { background: #C4973A; box-shadow: 0 0 10px #C4973A; }
+.terra .hero-time { color: #F6F1E9; }
+.terra .hero-time b { color: #C4973A; font-weight: 800; }
+.terra .hero-cta { background: #C4973A; color: #1B3828; }
+.terra .ghost-q { color: #F6F1E9; }
+.terra .section-label { color: #7A7570; }
+.terra .amber-dot, .terra .dotm { background: #C4973A; }
+.terra .rcard { background: #FFFFFF; box-shadow: 0 2px 12px rgba(27,56,40,0.07); }
+.terra .rcard-meta, .terra .rcard-stats { color: #7A7570; }
+.terra .cue-band { background: #1B3828; color: #F6F1E9; margin-left: 0; margin-right: 0; }
+.terra .cue-band .cb-label { color: #C4973A; opacity: 1; }
+.terra .nav { background: #F6F1E9; border-top: 1px solid #E0DAD0; color: #7A7570; }
+.terra .nav .ico { background: #7A7570; }
+.terra .nav .active { color: #C4973A; }
+.terra .nav .active .ico { background: #C4973A; }
+
+/* ═══ B. MIDNIGHT — near-black / cream / amber ═══ */
+.midnight { background: #10130F; color: #F6F1E9; }
+.midnight .date { color: #8A857D; }
+.midnight .hero { background: #F6F1E9; color: #10130F; }
+.midnight .hero-label { color: #A87B22; }
+.midnight .pulse-dot { background: #C4973A; box-shadow: 0 0 10px #C4973A; }
+.midnight .hero-time b { color: #A87B22; }
+.midnight .hero-cta { background: #10130F; color: #F6F1E9; }
+.midnight .ghost-q { color: #10130F; }
+.midnight .section-label { color: #8A857D; }
+.midnight .amber-dot, .midnight .dotm { background: #C4973A; }
+.midnight .rcard { background: #1C201A; }
+.midnight .rcard-meta, .midnight .rcard-stats { color: #9B968E; }
+.midnight .cue-band { background: #C4973A; color: #10130F; }
+.midnight .cue-band .cb-label { color: #10130F; opacity: 0.65; }
+.midnight .nav { background: #10130F; border-top: 1px solid #262B24; color: #8A857D; }
+.midnight .nav .ico { background: #8A857D; }
+.midnight .nav .active { color: #C4973A; }
+.midnight .nav .active .ico { background: #C4973A; }
+
+/* ═══ C. HARBOR — navy / white / black ═══ */
+.harbor { background: #FFFFFF; color: #0B0E14; }
+.harbor .date { color: #6B7280; }
+.harbor .hero { background: #0A1F44; color: #FFFFFF; }
+.harbor .hero-label { color: #6E8EFF; }
+.harbor .pulse-dot { background: #6E8EFF; box-shadow: 0 0 10px #6E8EFF; }
+.harbor .hero-time b { color: #6E8EFF; }
+.harbor .hero-cta { background: #FFFFFF; color: #0A1F44; }
+.harbor .ghost-q { color: #FFFFFF; }
+.harbor .section-label { color: #6B7280; }
+.harbor .amber-dot, .harbor .dotm { background: #0A1F44; }
+.harbor .rcard { background: #F4F5F7; }
+.harbor .rcard-meta, .harbor .rcard-stats { color: #6B7280; }
+.harbor .cue-band { background: #0B0E14; color: #FFFFFF; }
+.harbor .cue-band .cb-label { color: #6E8EFF; opacity: 1; }
+.harbor .nav { background: #FFFFFF; border-top: 1px solid #E5E7EB; color: #6B7280; }
+.harbor .nav .ico { background: #6B7280; }
+.harbor .nav .active { color: #0A1F44; }
+.harbor .nav .active .ico { background: #0A1F44; }
+</style>
+</head>
+<body>
+
+<!-- ═══ A ═══ -->
+<div class="direction">
+  <div class="phone terra">
+    <div class="scroll">
+      <div class="pad">
+        <div class="date">Sunday, July 5</div>
+        <div class="greet">Good afternoon,<br>Evîn.</div>
+        <div class="hero">
+          <div class="ghost-q">Q</div>
+          <div class="hero-label"><span class="pulse-dot"></span> Next class</div>
+          <div class="hero-day">Saturday, July 11</div>
+          <div class="hero-time">11:00 <b>AM</b></div>
+          <div class="hero-more">+ 3 more this week</div>
+          <div class="hero-cta">Build routine</div>
+        </div>
+        <div class="section-label"><span class="amber-dot"></span> Recent routines</div>
+        <div class="rcard">
+          <div class="rcard-top"><span class="rcard-name">Sat 11:00 — Full Body</span><span class="rcard-meta">Jul 4</span></div>
+          <div class="rcard-stats"><span><i class="dotm"></i>12 moves</span><span><i class="dotm"></i>45 min</span><span><i class="dotm"></i>9 tracks</span></div>
+        </div>
+      </div>
+      <div class="cue-band">
+        <div class="cb-label">Today's cue</div>
+        <div class="cb-text">Slow is a skill. Under 10% of max speed, muscles can't cheat.</div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="active"><span class="ico"></span>Home</div>
+      <div><span class="ico"></span>Build</div>
+      <div><span class="ico"></span>Library</div>
+      <div><span class="ico"></span>Your Cue</div>
+      <div><span class="ico"></span>Community</div>
+    </div>
+  </div>
+  <div class="dir-label">A — Terra</div>
+  <div class="dir-sub">your palette, executed: forest inversions, amber motif, scale</div>
+</div>
+
+<!-- ═══ B ═══ -->
+<div class="direction">
+  <div class="phone midnight">
+    <div class="scroll">
+      <div class="pad">
+        <div class="date">Sunday, July 5</div>
+        <div class="greet">Good afternoon,<br>Evîn.</div>
+        <div class="hero">
+          <div class="ghost-q">Q</div>
+          <div class="hero-label"><span class="pulse-dot"></span> Next class</div>
+          <div class="hero-day">Saturday, July 11</div>
+          <div class="hero-time">11:00 <b>AM</b></div>
+          <div class="hero-more">+ 3 more this week</div>
+          <div class="hero-cta">Build routine</div>
+        </div>
+        <div class="section-label"><span class="amber-dot"></span> Recent routines</div>
+        <div class="rcard">
+          <div class="rcard-top"><span class="rcard-name">Sat 11:00 — Full Body</span><span class="rcard-meta">Jul 4</span></div>
+          <div class="rcard-stats"><span><i class="dotm"></i>12 moves</span><span><i class="dotm"></i>45 min</span><span><i class="dotm"></i>9 tracks</span></div>
+        </div>
+      </div>
+      <div class="cue-band">
+        <div class="cb-label">Today's cue</div>
+        <div class="cb-text">Slow is a skill. Under 10% of max speed, muscles can't cheat.</div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="active"><span class="ico"></span>Home</div>
+      <div><span class="ico"></span>Build</div>
+      <div><span class="ico"></span>Library</div>
+      <div><span class="ico"></span>Your Cue</div>
+      <div><span class="ico"></span>Community</div>
+    </div>
+  </div>
+  <div class="dir-label">B — Midnight</div>
+  <div class="dir-sub">near-black, cream & amber — drama, still warm</div>
+</div>
+
+<!-- ═══ C ═══ -->
+<div class="direction">
+  <div class="phone harbor">
+    <div class="scroll">
+      <div class="pad">
+        <div class="date">Sunday, July 5</div>
+        <div class="greet">Good afternoon,<br>Evîn.</div>
+        <div class="hero">
+          <div class="ghost-q">Q</div>
+          <div class="hero-label"><span class="pulse-dot"></span> Next class</div>
+          <div class="hero-day">Saturday, July 11</div>
+          <div class="hero-time">11:00 <b>AM</b></div>
+          <div class="hero-more">+ 3 more this week</div>
+          <div class="hero-cta">Build routine</div>
+        </div>
+        <div class="section-label"><span class="amber-dot"></span> Recent routines</div>
+        <div class="rcard">
+          <div class="rcard-top"><span class="rcard-name">Sat 11:00 — Full Body</span><span class="rcard-meta">Jul 4</span></div>
+          <div class="rcard-stats"><span><i class="dotm"></i>12 moves</span><span><i class="dotm"></i>45 min</span><span><i class="dotm"></i>9 tracks</span></div>
+        </div>
+      </div>
+      <div class="cue-band">
+        <div class="cb-label">Today's cue</div>
+        <div class="cb-text">Slow is a skill. Under 10% of max speed, muscles can't cheat.</div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="active"><span class="ico"></span>Home</div>
+      <div><span class="ico"></span>Build</div>
+      <div><span class="ico"></span>Library</div>
+      <div><span class="ico"></span>Your Cue</div>
+      <div><span class="ico"></span>Community</div>
+    </div>
+  </div>
+  <div class="dir-label">C — Harbor</div>
+  <div class="dir-sub">navy / white / black with a cool blue accent</div>
+</div>
+
+</body>
+</html>

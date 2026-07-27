@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!--
+  Q — Direction D "STUDIO"
+  Synthesis of Direction C (navy/white/black) + Evîn's photo references:
+  · iris studio (olive velvet, butter-cream serif) → butter-pistachio accent
+  · sock + coffee tray (pale studio neutrals, one witty moment) → paper white, quirk
+  · charcoal athletic photography (warm light, editorial) → duotone photo treatment
+  Photography placeholders marked — real editorial photos go there.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #17181A;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  display: flex; align-items: flex-start; justify-content: center;
+  gap: 48px; min-height: 100vh; padding: 48px; flex-wrap: wrap;
+}
+.direction { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.dir-label { color: #999; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600; }
+.dir-sub { color: #666; font-size: 10px; margin-top: -12px; max-width: 380px; text-align: center; line-height: 1.5; }
+
+/* ── tokens: STUDIO ── */
+.studio {
+  --paper: #FAF7F2;   /* warm paper white — not stark */
+  --ink:   #111418;   /* near-black type */
+  --navy:  #16294B;   /* deep ink navy */
+  --navy2: #0E1C36;   /* navy shadow tone */
+  --butter:#DCE79E;   /* butter-pistachio — the iris accent */
+  --stone: #8A8478;   /* warm gray text */
+  --line:  #E8E2D6;
+}
+
+.phone {
+  width: 390px; height: 820px; border-radius: 40px; overflow: hidden;
+  display: flex; flex-direction: column; position: relative;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+  background: var(--paper); color: var(--ink);
+}
+.scroll { flex: 1; overflow: hidden; }
+.pad { padding: 0 24px; }
+
+.date { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-weight: 500; margin-top: 26px; color: var(--stone); }
+.greet { font-size: 40px; font-weight: 800; line-height: 1.02; margin-top: 6px; font-variation-settings: 'opsz' 96; }
+.greet .q-dot { color: var(--navy); }
+.greet .q-dot::after { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--butter); border: 2px solid var(--navy); margin-left: 6px; }
+
+/* hero */
+.hero { background: var(--navy); color: var(--paper); border-radius: 26px; padding: 24px; margin-top: 22px; position: relative; overflow: hidden; }
+.hero-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; color: var(--butter); display: flex; align-items: center; gap: 7px; }
+.pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--butter); box-shadow: 0 0 12px var(--butter); }
+.hero-day { font-size: 11px; margin-top: 14px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
+.hero-time { font-size: 64px; font-weight: 800; line-height: 1; margin-top: 2px; font-variation-settings: 'opsz' 96; letter-spacing: -1px; }
+.hero-time b { color: var(--butter); }
+.hero-more { font-size: 12px; margin-top: 8px; opacity: 0.65; }
+.hero-cta { margin-top: 18px; border-radius: 16px; height: 52px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; background: var(--butter); color: var(--navy2); }
+.ghost-q { position: absolute; right: -28px; bottom: -60px; font-size: 190px; font-weight: 800; font-variation-settings: 'opsz' 96; color: var(--paper); opacity: 0.07; line-height: 1; }
+
+/* photo moment — placeholder for real editorial photography */
+.photo { border-radius: 26px; margin-top: 26px; height: 190px; position: relative; overflow: hidden;
+  background:
+    radial-gradient(140% 120% at 18% 8%, rgba(250,247,242,0.22) 0%, rgba(250,247,242,0) 42%),
+    radial-gradient(120% 140% at 82% 100%, rgba(220,231,158,0.16) 0%, rgba(220,231,158,0) 48%),
+    linear-gradient(152deg, #24374F 0%, #16294B 46%, #0E1C36 100%);
+}
+.photo .ph-chip { position: absolute; top: 14px; left: 14px; background: rgba(250,247,242,0.14); border: 1px solid rgba(250,247,242,0.25); color: var(--paper); font-size: 8px; letter-spacing: 2px; text-transform: uppercase; padding: 5px 9px; border-radius: 99px; backdrop-filter: blur(4px); }
+.photo .ph-cap { position: absolute; left: 18px; bottom: 16px; color: var(--paper); font-size: 19px; font-weight: 700; line-height: 1.2; max-width: 75%; }
+.photo .ph-cap small { display: block; font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--butter); margin-bottom: 5px; }
+.photo .arc { position: absolute; right: -34px; top: -34px; width: 130px; height: 130px; border-radius: 50%; border: 22px solid rgba(220,231,158,0.14); }
+
+/* recent */
+.section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-top: 28px; color: var(--stone); display: flex; align-items: center; gap: 8px; }
+.section-label i { width: 6px; height: 6px; border-radius: 50%; background: var(--navy); display: inline-block; }
+.rcard { background: #FFFFFF; border: 1px solid var(--line); border-radius: 20px; padding: 18px; margin-top: 12px; }
+.rcard-top { display: flex; justify-content: space-between; align-items: baseline; }
+.rcard-name { font-weight: 700; font-size: 15px; }
+.rcard-meta { font-size: 11px; color: var(--stone); }
+.rcard-stats { display: flex; gap: 14px; margin-top: 10px; font-size: 11px; color: var(--stone); }
+.rcard-stats span { display: flex; align-items: center; gap: 5px; }
+.rcard-stats i { width: 5px; height: 5px; border-radius: 50%; background: var(--butter); border: 1.5px solid var(--navy); display: inline-block; }
+
+/* cue band — the quirk moment */
+.cue-band { margin-top: 26px; padding: 22px 24px 26px; background: var(--butter); color: var(--navy2); }
+.cue-band .cb-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; opacity: 0.55; }
+.cue-band .cb-text { font-size: 17px; font-weight: 700; line-height: 1.35; margin-top: 8px; }
+
+.nav { height: 68px; display: flex; align-items: center; justify-content: space-around; font-size: 9px; background: var(--paper); border-top: 1px solid var(--line); color: var(--stone); }
+.nav div { display: flex; flex-direction: column; align-items: center; gap: 5px; font-weight: 600; }
+.nav .ico { width: 18px; height: 18px; border-radius: 6px; background: var(--stone); opacity: 0.45; }
+.nav .active { color: var(--navy); }
+.nav .active .ico { background: var(--navy); opacity: 1; position: relative; }
+.nav .active .ico::after { content: ''; position: absolute; right: -3px; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--butter); border: 1.5px solid var(--paper); }
+
+/* swatches */
+.swatches { display: flex; gap: 10px; margin-top: 4px; }
+.sw { width: 54px; height: 54px; border-radius: 14px; position: relative; }
+.sw span { position: absolute; bottom: -18px; left: 0; right: 0; text-align: center; font-size: 8px; letter-spacing: 1px; color: #888; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div class="direction studio">
+  <div class="phone">
+    <div class="scroll">
+      <div class="pad">
+        <div class="date">Sunday, July 5</div>
+        <div class="greet">Good afternoon,<br>Evîn<span class="q-dot"></span></div>
+        <div class="hero">
+          <div class="ghost-q">Q</div>
+          <div class="hero-label"><span class="pulse-dot"></span> Next class</div>
+          <div class="hero-day">Saturday, July 11</div>
+          <div class="hero-time">11:00 <b>AM</b></div>
+          <div class="hero-more">+ 3 more this week</div>
+          <div class="hero-cta">Build routine</div>
+        </div>
+
+        <div class="photo">
+          <div class="arc"></div>
+          <div class="ph-chip">Editorial photo goes here</div>
+          <div class="ph-cap"><small>This week's focus</small>Slow burn, heavy spring.</div>
+        </div>
+
+        <div class="section-label"><i></i> Recent routines</div>
+        <div class="rcard">
+          <div class="rcard-top"><span class="rcard-name">Sat 11:00 — Full Body</span><span class="rcard-meta">Jul 4</span></div>
+          <div class="rcard-stats"><span><i></i>12 moves</span><span><i></i>45 min</span><span><i></i>9 tracks</span></div>
+        </div>
+      </div>
+
+      <div class="cue-band">
+        <div class="cb-label">Today's cue</div>
+        <div class="cb-text">Slow is a skill. Under 10% of max speed, muscles can't cheat.</div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="active"><span class="ico"></span>Home</div>
+      <div><span class="ico"></span>Build</div>
+      <div><span class="ico"></span>Library</div>
+      <div><span class="ico"></span>Your Cue</div>
+      <div><span class="ico"></span>Community</div>
+    </div>
+  </div>
+  <div class="dir-label">D — Studio</div>
+  <div class="dir-sub">C's navy/white/black skeleton, warmed: paper white, ink navy, butter-pistachio quirk (from the iris logo), photography carries warmth &amp; wit</div>
+  <div class="swatches">
+    <div class="sw" style="background:#FAF7F2"><span>Paper</span></div>
+    <div class="sw" style="background:#16294B"><span>Ink Navy</span></div>
+    <div class="sw" style="background:#111418"><span>Ink</span></div>
+    <div class="sw" style="background:#DCE79E"><span>Butter</span></div>
+  </div>
+</div>
+
+</body>
+</html>

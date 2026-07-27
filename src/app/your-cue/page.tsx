@@ -1,7 +1,35 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { IconRefresh } from '@tabler/icons-react'
+import { PenNote } from '@/components/Scribble'
+import NotesStack from '@/components/NotesStack'
+import BrandPhoto from '@/components/BrandPhoto'
 import type { SavedRoutine } from '@/types/routine'
+
+/** Distinct moves ever used — the data behind "NEVER REPEATS." */
+function computeDistinctMoves(routines: SavedRoutine[]): number {
+  const names = new Set<string>()
+  for (const r of routines) {
+    for (const b of r.blocks ?? []) {
+      for (const m of b.moves) names.add(m.name)
+    }
+  }
+  return names.size
+}
+
+/** Consecutive weeks (ending this week or last) with at least one routine built */
+function computeStreakWeeks(routines: SavedRoutine[]): number {
+  if (routines.length === 0) return 0
+  const WEEK = 7 * 24 * 60 * 60 * 1000
+  const weeks = new Set(routines.map(r => Math.floor(r.savedAt / WEEK)))
+  const thisWeek = Math.floor(Date.now() / WEEK)
+  let start = weeks.has(thisWeek) ? thisWeek : weeks.has(thisWeek - 1) ? thisWeek - 1 : -1
+  if (start === -1) return 0
+  let streak = 0
+  while (weeks.has(start - streak)) streak++
+  return streak
+}
 
 function computeStats(routines: SavedRoutine[]) {
   const total = routines.length
@@ -32,18 +60,21 @@ function shortArcLabel(arc: string): string {
 
 function computeSoundPatterns(routines: SavedRoutine[]) {
   const withTracks = routines.filter(r => r.playlistTracks && r.playlistTracks.length > 0)
-  if (withTracks.length < 2) return null
+  if (withTracks.length === 0) return null
 
   // per-routine occurrence count (how many playlists feature this artist)
   const playlistCount: Record<string, number> = {}
   // raw track count across all playlists
   const trackCount: Record<string, number> = {}
+  // first album art seen per artist — the visual for On Repeat
+  const artistArt: Record<string, string> = {}
 
   for (const r of withTracks) {
     const seenInRoutine = new Set<string>()
     for (const t of r.playlistTracks!) {
       const a = t.artist
       trackCount[a] = (trackCount[a] ?? 0) + 1
+      if (t.albumArt && !artistArt[a]) artistArt[a] = t.albumArt
       if (!seenInRoutine.has(a)) {
         seenInRoutine.add(a)
         playlistCount[a] = (playlistCount[a] ?? 0) + 1
@@ -51,12 +82,20 @@ function computeSoundPatterns(routines: SavedRoutine[]) {
     }
   }
 
-  const sortedByPlaylist = Object.entries(playlistCount).sort((a, b) => b[1] - a[1])
-  const top3 = sortedByPlaylist.slice(0, 3).map(([artist, count]) => ({ artist, count }))
-  const uniqueCount = sortedByPlaylist.length
-  const [topName, topCount] = sortedByPlaylist[0] ?? []
+  // rank by playlist presence, then raw track count
+  const sorted = Object.entries(playlistCount).sort(
+    (a, b) => b[1] - a[1] || (trackCount[b[0]] ?? 0) - (trackCount[a[0]] ?? 0)
+  )
+  const top3 = sorted.slice(0, 3).map(([artist, count]) => ({
+    artist,
+    count,
+    tracks: trackCount[artist] ?? 0,
+    art: artistArt[artist],
+  }))
+  const uniqueCount = sorted.length
+  const [topName, topCount] = sorted[0] ?? []
 
-  return { top3, uniqueCount, topName, topCount }
+  return { top3, uniqueCount, topName, topCount, topArt: topName ? artistArt[topName] : undefined }
 }
 
 function buildReflection(total: number, topEmphasis: string | null, topArc: string | null): string {
@@ -87,8 +126,23 @@ function buildReflection(total: number, topEmphasis: string | null, topArc: stri
   return parts.join(' ')
 }
 
+
+// ─── The one-liner — Q-written, unique per instructor ─────────────────────────
+
+const ONE_LINER_PLACEHOLDER = 'dark, driven, and here to make your hamstrings beg for mercy'
+const ONE_LINER_KEY = 'q_one_liner'
+const SIX_MONTHS = 182 * 24 * 60 * 60 * 1000
+
 export default function YourCuePage() {
   const [routines, setRoutines] = useState<SavedRoutine[]>([])
+  // Headshot appears automatically once /photos/evin-bw.jpg exists
+  const [headshotOk, setHeadshotOk] = useState(false)
+
+  useEffect(() => {
+    const probe = new window.Image()
+    probe.onload = () => setHeadshotOk(true)
+    probe.src = '/photos/evin-bw.jpg'
+  }, [])
 
   useEffect(() => {
     try {
@@ -100,55 +154,184 @@ export default function YourCuePage() {
   const { total, topEmphasis, topArc } = computeStats(routines)
   const reflection = buildReflection(total, topEmphasis, topArc)
   const soundPatterns = computeSoundPatterns(routines)
+  const distinctMoves = computeDistinctMoves(routines)
+  const streakWeeks = computeStreakWeeks(routines)
+
+  // ── One-liner: cached ~6 months, regenerates from the instructor's own data ──
+  const [oneLiner, setOneLiner] = useState(ONE_LINER_PLACEHOLDER)
+  const [writing, setWriting] = useState(false)
+
+  const generateOneLiner = useCallback(
+    async (currentRoutines: SavedRoutine[]) => {
+      if (currentRoutines.length === 0) return
+      setWriting(true)
+      try {
+        const stats = computeStats(currentRoutines)
+        const sounds = computeSoundPatterns(currentRoutines)
+        const res = await fetch('/api/generate-one-liner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topArtists: sounds?.top3.map(t => t.artist) ?? [],
+            topEmphasis: stats.topEmphasis,
+            topArc: stats.topArc ? shortArcLabel(stats.topArc) : null,
+            vibes: currentRoutines.map(r => r.vibe).filter(Boolean).slice(0, 5),
+            totalRoutines: stats.total,
+            distinctMoves: computeDistinctMoves(currentRoutines),
+          }),
+        })
+        if (!res.ok) throw new Error('api')
+        const { oneLiner: text } = await res.json()
+        if (text) {
+          setOneLiner(text)
+          localStorage.setItem(ONE_LINER_KEY, JSON.stringify({ text, generatedAt: Date.now() }))
+        }
+      } catch {
+        // keep whatever is showing — placeholder or last good line
+      } finally {
+        setWriting(false)
+      }
+    },
+    []
+  )
+
+  // On load: use the cached line; regenerate when stale (~6 months) or missing
+  useEffect(() => {
+    if (routines.length === 0) return
+    try {
+      const cached = JSON.parse(localStorage.getItem(ONE_LINER_KEY) ?? 'null')
+      if (cached?.text) {
+        setOneLiner(cached.text)
+        if (Date.now() - (cached.generatedAt ?? 0) < SIX_MONTHS) return
+      }
+    } catch {}
+    generateOneLiner(routines)
+  }, [routines, generateOneLiner])
 
   return (
-    <div className="px-5 pt-12 pb-10 flex flex-col gap-8 max-w-lg mx-auto w-full">
+    <div className="px-5 pt-12 pb-10 flex flex-col gap-8 max-w-lg mx-auto w-full relative">
 
-      <h1 className="text-3xl font-extrabold text-ink">Your Cue</h1>
+      <h1
+        className="font-extrabold text-ink"
+        style={{ fontSize: '34px', lineHeight: 1, fontVariationSettings: "'opsz' 96" }}
+      >
+        Your Cue
+      </h1>
 
-      {/* ── Section 1: My Account ── */}
-      <section className="flex flex-col gap-5 pb-4 border-b border-border">
-        <p className="text-xs font-medium tracking-widest uppercase text-stone">My Account</p>
+      {/* ── The POWDER poster: full-bleed B&W photo + marker annotations ── */}
+      <section
+        className="relative rounded-3xl overflow-hidden"
+        style={{ height: '560px', backgroundColor: '#0D0D0F' }}
+      >
+        {headshotOk && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src="/photos/evin-bw.jpg"
+            alt="Evîn Cheikosman"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: '50% 20%' }}
+          />
+        )}
+        {/* veil — grounding gradient so the writing always reads */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(0,0,0,0.32) 0%, transparent 30%, transparent 52%, rgba(0,0,0,0.82) 100%)',
+          }}
+        />
 
-        {/* Identity */}
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full border-2 border-forest bg-forest/10 flex items-center justify-center shrink-0">
-            <span className="text-2xl font-extrabold text-forest">E</span>
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <p className="text-lg font-extrabold text-ink leading-tight">Evîn Cheikosman</p>
-            <p className="text-xs text-stone">she/her</p>
-            <p className="text-xs font-medium text-stone mt-0.5">Certified Lagree Instructor · Core 40 SF</p>
-          </div>
+        {/* the Q mark — big, low-opacity, bleeding off the right edge */}
+        <span
+          aria-hidden
+          className="absolute font-extrabold pointer-events-none select-none"
+          style={{
+            right: '-42px',
+            top: '34%',
+            fontSize: '190px',
+            lineHeight: 1,
+            color: '#AEC8F5',
+            opacity: 0.35,
+            fontVariationSettings: "'opsz' 96",
+          }}
+        >
+          Q
+        </span>
+
+        {/* name — big powder marker */}
+        <div className="absolute" style={{ top: '16px', left: '20px' }}>
+          <PenNote color="#AEC8F5" size={52} rotate="-3deg">
+            Evîn
+          </PenNote>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-surface rounded-2xl px-4 py-6 flex flex-col gap-1 items-center text-center">
-            <p className="text-3xl font-bold text-ink">{total}</p>
-            <p className="text-xs text-stone leading-snug">Routines built</p>
-          </div>
-          <div className="bg-surface rounded-2xl px-4 py-6 flex flex-col gap-1 items-center text-center">
-            <p className="text-base font-bold text-ink leading-snug">
-              {topEmphasis ?? '—'}
-            </p>
-            <p className="text-xs text-stone mt-auto leading-snug">Top emphasis</p>
-          </div>
-          <div className="bg-surface rounded-2xl px-4 py-6 flex flex-col gap-1 items-center text-center">
-            <p className="text-base font-bold text-ink leading-snug">
-              {topArc ? shortArcLabel(topArc) : '—'}
-            </p>
-            <p className="text-xs text-stone mt-auto leading-snug">Fav energy arc</p>
-          </div>
+        {/* one-liner — white marker. UNIQUE PER USER: Q writes it from the
+            instructor's own data (music taste, emphasis, arcs, vibe prompts)
+            via /api/generate-one-liner; cached ~6 months; tap ↻ to rewrite. */}
+        <div className="absolute flex items-start gap-2" style={{ top: '90px', left: '24px', maxWidth: '310px' }}>
+          <PenNote color="#FFFFFF" size={17} rotate="-2deg" style={{ lineHeight: 1.45 }}>
+            {writing ? 'q is writing your line…' : oneLiner}
+          </PenNote>
+          {total > 0 && !writing && (
+            <button
+              onClick={() => generateOneLiner(routines)}
+              aria-label="Rewrite my one-liner"
+              title="Rewrite my one-liner"
+              className="shrink-0 mt-0.5 w-6 h-6 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+              style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: '#AEC8F5' }}
+            >
+              <IconRefresh size={12} stroke={2.5} />
+            </button>
+          )}
         </div>
 
-        {/* Archetype */}
-        <div className="bg-forest/8 rounded-2xl px-5 py-4">
-          <p className="text-xs font-medium text-stone uppercase tracking-widest mb-1.5">Archetype</p>
-          <p className="text-sm font-semibold text-ink">
-            The Architect — builds with intention, never repeats a routine
-          </p>
+        {/* stats — powder marker list */}
+        <div className="absolute flex flex-col" style={{ left: '20px', bottom: '150px', gap: '2px' }}>
+          {total > 0 ? (
+            <PenNote color="#AEC8F5" size={17} rotate="-1deg">
+              + {total} routine{total === 1 ? '' : 's'} built
+            </PenNote>
+          ) : (
+            <PenNote color="#AEC8F5" size={17} rotate="-1deg">
+              + first routine loading…
+            </PenNote>
+          )}
+          {topEmphasis && (
+            <PenNote color="#AEC8F5" size={17} rotate="-1deg">
+              + {topEmphasis.toLowerCase()}
+            </PenNote>
+          )}
+          {topArc && (
+            <PenNote color="#AEC8F5" size={17} rotate="-1deg">
+              + {shortArcLabel(topArc).toLowerCase()} arc
+            </PenNote>
+          )}
         </div>
+
+        {/* credential line — quiet small caps */}
+        <p
+          className="absolute text-[10px] font-bold uppercase"
+          style={{ left: '20px', bottom: '126px', letterSpacing: '2.5px', color: 'rgba(255,255,255,0.85)' }}
+        >
+          Certified Lagree Instructor · Core40 SF
+        </p>
+
+        {/* giant statement — last line in powder */}
+        <p
+          className="absolute left-0 right-0 text-white font-extrabold"
+          style={{
+            bottom: '18px',
+            padding: '0 18px',
+            fontSize: '40px',
+            lineHeight: 0.96,
+            letterSpacing: '-1px',
+            fontVariationSettings: "'opsz' 96",
+          }}
+        >
+          BUILDS WITH INTENTION.
+          <br />
+          <span style={{ color: '#AEC8F5' }}>NEVER REPEATS.</span>
+        </p>
       </section>
 
       {/* ── Divider ── */}
@@ -160,49 +343,146 @@ export default function YourCuePage() {
 
       {/* ── Section 2: Your Cue ── */}
       <section className="flex flex-col gap-4">
-        <div className="bg-surface rounded-2xl px-5 py-5">
-          <p className="text-sm text-ink leading-relaxed italic">{reflection}</p>
+        <div className="bg-white rounded-2xl px-5 py-5 shadow-card">
+          <p className="text-sm text-ink leading-relaxed">{reflection}</p>
         </div>
+
+        {/* Receipts — the poster's claims, backed by data */}
+        {total > 0 && (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-surface rounded-2xl px-4 py-5 flex flex-col gap-1 relative overflow-hidden">
+              <p
+                className="font-extrabold text-ink"
+                style={{ fontSize: '30px', lineHeight: 1, fontVariationSettings: "'opsz' 96" }}
+              >
+                {distinctMoves}
+              </p>
+              <p className="text-xs text-stone leading-snug">
+                distinct moves used — <span className="font-bold text-ink">never repeats</span>
+              </p>
+            </div>
+            <div className="bg-surface rounded-2xl px-4 py-5 flex flex-col gap-1">
+              <p
+                className="font-extrabold text-ink"
+                style={{ fontSize: '30px', lineHeight: 1, fontVariationSettings: "'opsz' 96" }}
+              >
+                {streakWeeks || '—'}
+              </p>
+              <p className="text-xs text-stone leading-snug">
+                {streakWeeks === 1 ? 'week building' : 'weeks building, back to back'}
+              </p>
+            </div>
+          </div>
+        )}
       </section>
 
-      {/* ── Section 3: Sound Patterns ── */}
-      {soundPatterns && (
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-xs font-medium text-stone uppercase tracking-widest">Sound Patterns</span>
-            <div className="flex-1 h-px bg-border" />
-          </div>
+      {/* ── Photo beat ── */}
+      <BrandPhoto
+        src="/photos/socks-bw.jpg"
+        alt="Grip socks with heart-dot soles on a reformer"
+        height={170}
+        position="50% 45%"
+        caption="The uniform"
+      />
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-surface rounded-2xl px-4 py-5 flex flex-col gap-1">
-              <p className="text-2xl font-bold text-forest">{soundPatterns.uniqueCount}</p>
-              <p className="text-xs text-stone leading-snug">Unique artists used</p>
-            </div>
-            <div className="bg-surface rounded-2xl px-4 py-5 flex flex-col gap-1">
-              <p className="text-sm font-bold text-ink leading-snug truncate">{soundPatterns.topName}</p>
-              <p className="text-xs text-stone leading-snug">
-                {soundPatterns.topCount} playlist{soundPatterns.topCount !== 1 ? 's' : ''}
-              </p>
-              <p className="text-xs text-stone mt-0.5 leading-snug">Top artist</p>
-            </div>
-          </div>
+      {/* ── Section: Notes to self — the user's own sticky stack ── */}
+      <section className="flex flex-col gap-4 px-1">
+        <NotesStack />
+      </section>
 
-          <div className="bg-surface rounded-2xl px-5 py-4 flex flex-col gap-3">
-            <p className="text-xs font-medium text-stone uppercase tracking-widest">Most used artists</p>
-            <div className="flex flex-col gap-2">
-              {soundPatterns.top3.map(({ artist, count }) => (
-                <div key={artist} className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-medium text-ink truncate">{artist}</p>
-                  <span className="shrink-0 text-xs font-semibold text-forest bg-forest/10 rounded-full px-2.5 py-0.5">
-                    {count} playlist{count !== 1 ? 's' : ''}
-                  </span>
+      {/* ── Section 3: On Repeat — the sound of your classes ── */}
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs font-medium text-stone uppercase tracking-widest">On Repeat</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+
+        {soundPatterns ? (
+          <>
+            {/* #1 artist — the hero */}
+            <div className="bg-white rounded-3xl p-5 shadow-card border border-border flex items-center gap-4 relative overflow-hidden">
+              {soundPatterns.topArt ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={soundPatterns.topArt}
+                  alt=""
+                  className="w-20 h-20 rounded-xl object-cover shrink-0"
+                  style={{ filter: 'grayscale(1) contrast(1.1)' }}
+                />
+              ) : (
+                <div
+                  className="w-20 h-20 rounded-xl shrink-0 flex items-center justify-center font-extrabold text-2xl"
+                  style={{ backgroundColor: '#0D0D0F', color: '#AEC8F5' }}
+                >
+                  {soundPatterns.topName?.[0]}
                 </div>
-              ))}
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-bold tracking-[3px] uppercase" style={{ color: '#8A8A8A' }}>
+                  Most on repeat
+                </p>
+                <p className="text-lg font-extrabold text-ink leading-tight mt-0.5 truncate">
+                  {soundPatterns.topName}
+                </p>
+                <p className="text-xs text-stone mt-0.5">
+                  in {soundPatterns.topCount} of my playlist{soundPatterns.topCount !== 1 ? 's' : ''} ·{' '}
+                  {soundPatterns.uniqueCount} artists total
+                </p>
+              </div>
+              <PenNote color="#AEC8F5" size={15} rotate="-4deg" className="shrink-0">
+                on repeat!
+              </PenNote>
             </div>
+
+            {/* top 3 with covers */}
+            {soundPatterns.top3.length > 1 && (
+              <div className="bg-surface rounded-2xl px-5 py-4 flex flex-col gap-3">
+                <p className="text-xs font-medium text-stone uppercase tracking-widest">My top three</p>
+                <div className="flex flex-col gap-2.5">
+                  {soundPatterns.top3.map(({ artist, count, tracks, art }, i) => (
+                    <div key={artist} className="flex items-center gap-3">
+                      <span className="text-[10px] font-extrabold text-stone w-4 text-right shrink-0">
+                        {i + 1}
+                      </span>
+                      {art ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={art}
+                          alt=""
+                          className="w-9 h-9 rounded-lg object-cover shrink-0"
+                          style={{ filter: 'grayscale(1) contrast(1.1)' }}
+                        />
+                      ) : (
+                        <div
+                          className="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center text-xs font-extrabold"
+                          style={{ backgroundColor: '#0D0D0F', color: '#AEC8F5' }}
+                        >
+                          {artist[0]}
+                        </div>
+                      )}
+                      <p className="text-sm font-medium text-ink truncate flex-1">{artist}</p>
+                      <span
+                        className="shrink-0 text-xs font-semibold rounded-full px-2.5 py-0.5"
+                        style={{ backgroundColor: '#0D0D0F', color: '#AEC8F5' }}
+                      >
+                        {count} playlist{count !== 1 ? 's' : ''} · {tracks} track{tracks !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="bg-surface rounded-2xl px-5 py-6 flex flex-col items-center text-center gap-1">
+            <p className="text-sm font-bold text-ink">No sound yet.</p>
+            <p className="text-xs text-stone max-w-[250px]">
+              Build a routine with a playlist and Q starts tracking who&apos;s on repeat across my classes.
+            </p>
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
     </div>
   )

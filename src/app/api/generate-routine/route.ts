@@ -13,6 +13,37 @@ CLASS STRUCTURE:
 - Arms: 3-5 moves × 1 min = 3-5 min MAXIMUM. Never 6 moves. (spring: 3-5Y for kneeling, 1R+1-2Y for seated rows)
 - Core closer: 2-3 moves × 1 min = 2-3 min (spring: 1 yellow)
 
+ENERGY ARC CONTRACT — THE MOST IMPORTANT INPUT. The arc dictates the DIFFICULTY CURVE of the entire routine — which moves get selected in EVERY block, not just the opener/closer or the copy:
+
+- "Peak and hold": HARD from the first move to the last. Every block draws from the advanced tier. Longest holds, heaviest variants, no easing anywhere. If a block has an easier and harder way to do its job, always take the harder one. The first block should already feel like most instructors' peak.
+- "Sustained energy": Pick ONE difficulty level and hold it FLAT the whole class. If it starts intermediate it ends intermediate; if it starts accessible it stays accessible with only a few moderate challenges. NO huge complicated movements, no intensity spikes. Instead, keep it alive with pulses, tempo changes, and variations of familiar moves — texture, not escalation.
+- "Slow build → big finish": The opening blocks are genuinely EASY — accessible moves that let the class ease in. Then each block escalates a visible step. The final leg block, arms, and core closer contain the hardest moves in the whole set. The gap between the first block and the last should be obvious to anyone reading the move list.
+
+MOVE DIFFICULTY TIERS — use these when applying the arc:
+- ACCESSIBLE: Plank, Forearm Plank, Saw, Wheelbarrow, Spoon, Floor Lunge, Well Lunge, Back Lunge, Light Squats, Hamstring Curls, Inner Thighs, Serve the Platter, Tricep Extension, Shoulder Raise, Mermaid, French Twist, Torso Twist
+- INTERMEDIATE: Plank to Pike, Bear, Super Crunch, Bungee Crunch, Twisted Saw, Twisted Wheelbarrow, Elevator Lunge, Single Leg Squat, Fifth Lunge, Escalator Lunge, Deadlift, Runner's Lunge, Teaser, Soul Train, Sexy Back, Hug a Tree, Reverse Fly, Kneeling Lat Pulldown
+- ADVANCED: Giant/Mega/Express variants, Spider Lunge, Ninja Kick, Spider Kick, Skater, Single Leg Deadlift, Super Lunge, Froggy Kick, Dancing Bear, Twisted Plank to Pike, Reverse Twisted Bear, Giant Reverse series, Mega Donkey Kick, Swimmer, Mega Chest Fly, Wide Mega Row, Heavy Sexy Back
+
+VIBE INTENSITY DIAL — analyze the instructor's actual vibe words and let them shape MOVE SELECTION, not just the class opener copy:
+- Words like "dark, driven, merciless, relentless, hardest, brutal, savage" → push every selection to the top of what the arc allows: advanced-tier moves, 2-min holds where legal, the heavy option every time there's a choice.
+- Words like "feel-good, flow, smooth, light, fun, easy, restorative" → accessible/intermediate moves with GREAT texture: pulses, tempo variations, 3-count negatives, and playful variations of familiar moves. The challenge comes from time under tension, not complexity.
+- Words like "emotional, build, journey" → reinforce the escalation shape within the arc.
+- The vibe NEVER overrides the arc's difficulty curve — it tunes selections WITHIN it (a "feel-good" peak-and-hold is still hard everywhere; it's hard with warmth).
+- THE TEST: an instructor reading only the move list — no copy — should be able to guess both the arc and the vibe. If the same moves would appear for "merciless" and "feel-good flow," the routine has failed this section.
+
+CLASS LEVEL — who is actually in the room. This sets the CEILING and FLOOR of the difficulty tiers; the arc shapes the curve within them:
+- "Beginner-friendly": Draw from ACCESSIBLE and easier INTERMEDIATE moves only — no Giant/Mega/Express variants, no Spider Lunge, Ninja Kick, or other advanced picks. A beginner "peak and hold" is still relentless, but built from approachable moves held longer with simpler transitions and generous settling time. Prefer position groups that are easy to find on the machine.
+- "Mixed levels": Default behavior — intermediate spine with advanced moments where the arc calls for them.
+- "Advanced regulars": Bias toward INTERMEDIATE and ADVANCED tiers. Accessible moves appear only as deliberate breathers, never as the default. Assume the room knows every setup — transitions can be quicker and cues can skip basics.
+The class level NEVER changes the arc's shape — a beginner slow-build still builds; an advanced sustained class still stays flat. Level moves the whole curve up or down.
+
+MOVE NOTES — direct requests from the instructor. These are HARD constraints:
+- Moves to FEATURE: must appear in the routine, placed where sequencing rules allow and where they serve the arc. If a requested move conflicts with a sequencing rule, place it in the nearest legal spot rather than dropping it.
+- Moves to SKIP: must NOT appear anywhere — and neither should their close variants (skip "Wheelbarrow" = no Wheelbarrow, Twisted Wheelbarrow, Reverse Wheelbarrow, Giant Wheelbarrow). Also honor body-part requests like "no overhead pressing" or "easy on the wrists" by excluding every move that loads that pattern.
+- Never mention these constraints in the class opener or TLDR — just build accordingly.
+
+SELF-CHECK BEFORE RESPONDING: Re-read the requested arc and vibe, then scan your block list top to bottom and verify the difficulty curve matches the contract above. If a "slow build" starts with Spider Lunge, or a "peak and hold" contains Well Lunge, or a "sustained" routine has a giant spike, fix it before responding.
+
 CORE OPENER SETTLING RULE:
 The first move of the core opener must begin with a stationary hold before the movement starts. The cue for the first move should always say something like: "Start in a high plank — settle in for 20 seconds, then begin [the movement] for the remaining 40 seconds." This gives the class time to get set up, find their footing, and move together. Never start the very first move of class with a dynamic movement from rep one.
 
@@ -177,9 +208,17 @@ Mega Chest Fly [KNEELING-ON-CARRIAGE-FACING-FRONT], Mega Chest Press [KNEELING-O
 GIANT ARMS (2 yellow short cables, 1 min each):
 Giant Sexy Back [KNEELING-ON-CARRIAGE-FACING-BACK], Giant Chest Opener [KNEELING-ON-CARRIAGE-FACING-BACK], Giant Lateral Raise [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Bicep Curl [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Tricep Extension [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Shoulder Press [KNEELING-ON-CARRIAGE-FACING-FRONT], Giant Serve the Platter [KNEELING-ON-CARRIAGE-FACING-FRONT]
 
+BUILT TO ORDER — acknowledgment receipts. Alongside the routine, return a "builtToOrder" array: 1-4 SHORT lines (each under 12 words) that show the instructor their explicit choices were honored. Speak as Q, plainly and specifically:
+- If class level is NOT "Mixed levels": one line about how the level shaped the build. E.g. "Beginner-friendly room — approachable moves, longer holds do the work." or "Advanced regulars — the hard stuff, block after block."
+- For each move note honored: name it. E.g. "Super Lunge is out, like you asked." / "Spider Lunge featured — heavy legs, both sides." / "No planks to open — you start on hands and knees."
+- Optionally ONE line tying the arc to the build if it's a strong shape: "Slow build honored — the last block is the summit."
+- If the level is "Mixed levels" and there are no move notes, return an empty array []. Never invent receipts for choices the instructor didn't make.
+- Receipts must be TRUE of the routine you actually built — verify each one against the block list.
+
 RESPOND WITH VALID JSON ONLY. No markdown, no text outside the JSON.
 {
   "classOpener": "what the instructor literally says out loud — max 3 sentences, specific to the vibe, uses the goal bank",
+  "builtToOrder": ["short receipt lines — see BUILT TO ORDER rules; [] if no explicit choices"],
   "tldr": {
     "focus": "primary muscle groups",
     "whereTheyWillFeelIt": "anatomical description of where fatigue accumulates",
@@ -206,7 +245,7 @@ Do not include "springChange" on a move if the spring load hasn't changed. Only 
 
 export async function POST(request: Request) {
   try {
-    const { emphasis, energyArc, vibe } = await request.json()
+    const { emphasis, energyArc, vibe, classLevel, moveNotes } = await request.json()
 
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
@@ -221,7 +260,7 @@ export async function POST(request: Request) {
       messages: [
         {
           role: 'user',
-          content: `Build a 40-minute Lagree routine:\n- Emphasis: ${emphasis}\n- Energy arc: ${energyArc}\n- Vibe: ${vibe}\n\nFollow all sequencing rules. Make the class opener and TLDR match the vibe.`,
+          content: `Build a 40-minute Lagree routine:\n- Emphasis: ${emphasis}\n- Energy arc: ${energyArc}\n- Vibe: ${vibe}\n- Class level: ${classLevel ?? 'Mixed levels'}\n- Move notes from the instructor: ${moveNotes || 'none'}\n\nFollow all sequencing rules. Apply the ENERGY ARC CONTRACT, CLASS LEVEL, and VIBE INTENSITY DIAL to every block's move selection — the difficulty curve of the move list itself must reflect this arc, level, and vibe. Honor the MOVE NOTES as hard constraints. Then make the class opener and TLDR match. Run the self-check before responding.`,
         },
       ],
     })

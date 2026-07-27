@@ -2,7 +2,105 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import BrandPhoto from '@/components/BrandPhoto'
+import { PenNote } from '@/components/Scribble'
+import facts from '@/data/facts.json'
 import type { SavedRoutine } from '@/types/routine'
+import { seedDemoData, isFirstRun, markIntroSeen } from '@/lib/demo'
+
+// ─── First-run intro — three beats, then in. Never shows again. ──────────────
+
+const INTRO_SLIDES = [
+  {
+    k: 'BUILD',
+    title: 'Your class, on cue.',
+    body: 'Q builds 32-minute Lagree routines — spring loads, cues, the works — and pairs each one with a playlist mapped to your energy arc.',
+  },
+  {
+    k: 'TEACH',
+    title: 'Then teach it.',
+    body: 'Teach Mode puts the current move, spring, and countdown on one glanceable black screen. Auto-advances while you coach.',
+  },
+  {
+    k: 'REFLECT',
+    title: 'Q pays attention.',
+    body: 'Every routine, reflection, and playlist feeds Your Cue — your teaching identity, reflected back with receipts.',
+  },
+]
+
+function IntroOverlay({ onDone }: { onDone: (seed: boolean) => void }) {
+  const [slide, setSlide] = useState(0)
+  const s = INTRO_SLIDES[slide]
+  const last = slide === INTRO_SLIDES.length - 1
+
+  return (
+    <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: '#0D0D0F', zIndex: 60 }}>
+      <div className="flex-1 flex flex-col items-start justify-center px-8 gap-4 max-w-lg mx-auto w-full relative">
+        <span
+          aria-hidden
+          className="absolute font-extrabold pointer-events-none select-none"
+          style={{ right: '-40px', top: '10%', fontSize: '220px', lineHeight: 1, color: '#AEC8F5', opacity: 0.14, fontVariationSettings: "'opsz' 96" }}
+        >
+          Q
+        </span>
+        <p className="text-[10px] font-bold tracking-[3px] uppercase relative" style={{ color: '#AEC8F5' }}>
+          {s.k}
+        </p>
+        <p
+          className="text-white font-extrabold relative"
+          style={{ fontSize: '40px', lineHeight: 1.02, letterSpacing: '-0.5px', fontVariationSettings: "'opsz' 96" }}
+        >
+          {s.title}
+        </p>
+        <p className="text-sm leading-relaxed relative max-w-[300px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          {s.body}
+        </p>
+      </div>
+
+      <div className="px-8 pb-12 max-w-lg mx-auto w-full flex flex-col gap-4">
+        {/* dots */}
+        <div className="flex gap-1.5">
+          {INTRO_SLIDES.map((_, i) => (
+            <span
+              key={i}
+              className="h-1 rounded-full transition-all"
+              style={{
+                width: i === slide ? '20px' : '8px',
+                backgroundColor: i === slide ? '#AEC8F5' : 'rgba(255,255,255,0.25)',
+              }}
+            />
+          ))}
+        </div>
+        {last ? (
+          <div className="flex flex-col gap-2.5">
+            <button
+              onClick={() => onDone(true)}
+              className="w-full text-center font-bold text-base rounded-2xl py-3.5"
+              style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
+            >
+              Try Q with sample data
+            </button>
+            <button
+              onClick={() => onDone(false)}
+              className="w-full text-center font-semibold text-sm py-2"
+              style={{ color: 'rgba(255,255,255,0.6)' }}
+            >
+              Start fresh
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setSlide(v => v + 1)}
+            className="w-full text-center font-bold text-base rounded-2xl py-3.5"
+            style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
+          >
+            Next
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
 
 // ─── Schedule ─────────────────────────────────────────────────────────────────
 
@@ -36,6 +134,111 @@ function formatTime(date: Date) {
   return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
 }
 
+// ─── Reflection loop ──────────────────────────────────────────────────────────
+// After a class happens, Q quietly asks how it landed. One tap. Feeds Your Cue.
+
+type ReflectionValue = 'fire' | 'rework' | 'down'
+
+const REFLECTION_OPTIONS: {
+  value: ReflectionValue
+  emoji: string
+  label: string
+  short: string
+}[] = [
+  { value: 'fire', emoji: '🔥', label: 'It landed — keep it', short: 'keep it' },
+  { value: 'rework', emoji: '❤️‍🩹', label: 'Good bones — needs a rework', short: 'rework' },
+  { value: 'down', emoji: '👎', label: 'Not it — retire this one', short: 'retire' },
+]
+
+/** The most recent class that already happened (each slot's next occurrence − 7 days) */
+function lastClass(now: Date): Date | null {
+  const past = SCHEDULE
+    .map(({ day, hour, minute }) => {
+      const next = nextOccurrence(day, hour, minute, now)
+      return new Date(next.getTime() - 7 * 24 * 60 * 60 * 1000)
+    })
+    .filter(d => d <= now)
+    .sort((a, b) => b.getTime() - a.getTime())
+  return past[0] ?? null
+}
+
+function reflectionKey(d: Date) {
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}-${d.getHours()}:${d.getMinutes()}`
+}
+
+/** Direction C — the reflection rides the black hero card, below a hairline. */
+function ReflectionStrip({ classDate }: { classDate: Date }) {
+  const key = reflectionKey(classDate)
+  const [answered, setAnswered] = useState<ReflectionValue | null | 'loading'>('loading')
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('q_reflections') ?? '{}')
+      setAnswered(stored[key] ?? null)
+    } catch {
+      setAnswered(null)
+    }
+  }, [key])
+
+  function answer(value: ReflectionValue) {
+    try {
+      const stored = JSON.parse(localStorage.getItem('q_reflections') ?? '{}')
+      stored[key] = value
+      localStorage.setItem('q_reflections', JSON.stringify(stored))
+    } catch {}
+    setAnswered(value)
+  }
+
+  if (answered === 'loading') return null
+
+  const label = classDate.toLocaleDateString('en-US', { weekday: 'long' })
+  const time = formatTime(classDate)
+
+  return (
+    <>
+      <div className="mt-4 h-px relative" style={{ backgroundColor: 'rgba(255,255,255,0.14)' }} />
+      {answered ? (
+        <div className="mt-3.5 flex items-center gap-3 relative">
+          <span className="text-xl" aria-hidden>
+            {REFLECTION_OPTIONS.find(o => o.value === answered)?.emoji}
+          </span>
+          <PenNote color="#AEC8F5" size={14} rotate="-2deg">
+            noted. it all feeds your cue.
+          </PenNote>
+        </div>
+      ) : (
+        <div className="mt-3.5 flex items-center justify-between gap-3 relative">
+          <p className="text-xs leading-snug max-w-[130px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            How&apos;d <span className="font-bold text-white">{label} {time}</span> land?
+          </p>
+          <div className="flex items-start gap-2">
+            {REFLECTION_OPTIONS.map(o => (
+              <button
+                key={o.value}
+                onClick={() => answer(o.value)}
+                title={o.label}
+                aria-label={o.label}
+                className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform"
+              >
+                <span
+                  className="w-[46px] h-[46px] rounded-full flex items-center justify-center text-[21px] transition-colors hover:bg-white/20"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                  aria-hidden
+                >
+                  {o.emoji}
+                </span>
+                <span className="text-[9px] font-semibold leading-none" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  {o.short}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 function greeting(hour: number) {
   if (hour < 12) return 'Good morning'
   if (hour < 17) return 'Good afternoon'
@@ -50,8 +253,9 @@ function formatSavedAt(ts: number) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="pb-2" style={{ borderBottom: '1px solid #E0DAD0' }}>
-      <h2 className="text-xs font-medium tracking-widest uppercase text-stone">{children}</h2>
+    <div className="pb-2 flex items-center gap-2" style={{ borderBottom: '1px solid #E9E9E4' }}>
+      <span className="w-1.5 h-1.5 rounded-full bg-powder shrink-0" />
+      <h2 className="text-xs font-semibold tracking-widest uppercase text-stone">{children}</h2>
     </div>
   )
 }
@@ -71,10 +275,12 @@ function LinkedDot({ white = false }: { white?: boolean }) {
 
 export default function HomePage() {
   const [routines, setRoutines] = useState<SavedRoutine[]>([])
+  const [showIntro, setShowIntro] = useState(false)
   const now = new Date()
   const hour = now.getHours()
 
   useEffect(() => {
+    if (isFirstRun()) setShowIntro(true)
     try {
       const stored = localStorage.getItem('q_routines')
       if (stored) {
@@ -83,6 +289,21 @@ export default function HomePage() {
       }
     } catch {}
   }, [])
+
+  function finishIntro(seed: boolean) {
+    markIntroSeen()
+    if (seed) {
+      seedDemoData()
+      try {
+        const stored = localStorage.getItem('q_routines')
+        if (stored) {
+          const parsed: SavedRoutine[] = JSON.parse(stored)
+          setRoutines(parsed.sort((a, b) => b.savedAt - a.savedAt))
+        }
+      } catch {}
+    }
+    setShowIntro(false)
+  }
 
   const upcoming = SCHEDULE
     .map(({ day, hour, minute }) => nextOccurrence(day, hour, minute, now))
@@ -101,10 +322,11 @@ export default function HomePage() {
   }
 
   const nextLinked = linkedRoutine(nextClass)
-  const isLinked = !!(nextLinked?.spotifyPlaylistUrl)
+  // Linked = a routine exists for this slot. A Spotify playlist is a bonus, not the bar.
+  const isLinked = !!nextLinked
 
   const albumArts: string[] = (() => {
-    if (!isLinked || !nextLinked) return []
+    if (!nextLinked) return []
     const seen = new Set<string>()
     const arts: string[] = []
     for (const t of nextLinked.playlistTracks ?? []) {
@@ -119,11 +341,13 @@ export default function HomePage() {
 
   const recentRoutines = routines.slice(0, 5)
 
-  // Time-of-day hero accent
-  const heroBorderColor = hour >= 5 && hour < 11 ? '#EBF0EC'
-    : hour >= 11 && hour < 17 ? '#FBF5E6'
-    : null
-  const heroEveningOverlay = hour >= 17
+  // Split "11:00 AM" so the meridiem can take the butter accent
+  const timeStr = formatTime(nextClass)
+  const [timeDigits, meridiem] = [timeStr.replace(/\s?[AP]M$/i, ''), timeStr.match(/[AP]M$/i)?.[0] ?? '']
+
+  // Daily fact — powder left-rule + marker title
+  const dayOfYear = Math.floor((Date.now() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000)
+  const todayFact = facts[dayOfYear % facts.length]
 
   return (
     <>
@@ -136,14 +360,19 @@ export default function HomePage() {
         .routine-scroll { scrollbar-width: none; }
       `}</style>
 
-      <div className="px-5 pt-14 pb-8 flex flex-col gap-8 max-w-lg mx-auto w-full">
+      {showIntro && <IntroOverlay onDone={finishIntro} />}
+
+      <div className="px-5 pt-14 pb-8 flex flex-col gap-8 max-w-lg mx-auto w-full relative">
 
         {/* ── Greeting ── */}
         <div style={{ animation: 'fadeUp 400ms ease-out both' }}>
           <p className="text-sm font-medium text-stone tracking-wide uppercase mb-1">
             {now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
-          <h1 className="text-4xl font-extrabold text-ink leading-tight">
+          <h1
+            className="font-extrabold text-ink"
+            style={{ fontSize: '40px', lineHeight: 1.05, fontVariationSettings: "'opsz' 96" }}
+          >
             {greeting(hour)},<br />Evîn.
           </h1>
         </div>
@@ -154,26 +383,27 @@ export default function HomePage() {
           style={{ animation: 'fadeUp 400ms ease-out 80ms both' }}
         >
           <div
-            className="rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden"
-            style={{
-              backgroundColor: '#1B3828',
-              ...(heroBorderColor ? { borderLeft: `2px solid ${heroBorderColor}` } : {}),
-            }}
+            className="rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden"
+            style={{ backgroundColor: '#0D0D0F' }}
           >
-            {/* Radial gradient overlay */}
-            <div
-              className="absolute inset-0 pointer-events-none rounded-2xl"
-              style={{ background: 'radial-gradient(circle at 85% 85%, transparent 20%, rgba(0,0,0,0.25) 100%)' }}
-            />
-            {/* Evening tint */}
-            {heroEveningOverlay && (
-              <div
-                className="absolute inset-0 pointer-events-none rounded-2xl"
-                style={{ backgroundColor: 'rgba(27,56,40,0.08)' }}
-              />
-            )}
+            {/* The Q mark — big, low-opacity, bleeding off the corner */}
+            <span
+              aria-hidden
+              className="absolute font-extrabold pointer-events-none select-none"
+              style={{
+                right: '-28px',
+                top: '-34px',
+                fontSize: '170px',
+                lineHeight: 1,
+                color: '#AEC8F5',
+                opacity: 0.22,
+                fontVariationSettings: "'opsz' 96",
+              }}
+            >
+              Q
+            </span>
 
-            <p className="text-xs font-medium tracking-widest uppercase text-white/50 relative">
+            <p className="text-[10px] font-bold tracking-[3px] uppercase relative" style={{ color: '#AEC8F5' }}>
               Next Class
             </p>
 
@@ -182,8 +412,11 @@ export default function HomePage() {
                 <p className="text-xs font-medium tracking-widest uppercase text-white/60">
                   {formatDate(nextClass)}
                 </p>
-                <p className="text-white leading-none mt-1" style={{ fontSize: '52px', fontWeight: 800 }}>
-                  {formatTime(nextClass)}
+                <p
+                  className="text-white leading-none mt-1"
+                  style={{ fontSize: '72px', fontWeight: 800, fontVariationSettings: "'opsz' 96", letterSpacing: '-2px' }}
+                >
+                  {timeDigits}<span style={{ color: '#AEC8F5' }}>{meridiem}</span>
                 </p>
                 {moreThisWeek > 0 && (
                   <p className="text-xs mt-1.5 text-white/60">
@@ -213,12 +446,51 @@ export default function HomePage() {
 
             <Link
               href={isLinked ? '/library' : '/build'}
-              className="w-full text-center font-semibold text-base rounded-xl py-3.5 block active:opacity-80 transition-opacity relative bg-[#F6F1E9] hover:bg-white text-[#0F1A14]"
+              className="w-full text-center font-bold text-base rounded-2xl py-3.5 block active:opacity-80 transition-all relative hover:brightness-105"
+              style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
             >
               {isLinked ? 'Review your routine →' : 'Build routine'}
             </Link>
+
+            {/* ── Reflection — last class, asked right on the anchor card.
+                 Only asked once there's at least one routine that predates the
+                 class — Q shouldn't ask how a class landed if it wasn't built in Q. ── */}
+            {(() => {
+              const last = lastClass(now)
+              const taughtWithQ = last && routines.some(r => r.savedAt <= last.getTime())
+              return last && taughtWithQ ? <ReflectionStrip classDate={last} /> : null
+            })()}
           </div>
         </section>
+
+        {/* ── Photo moment: the vibe, in one frame ── */}
+        <section style={{ animation: 'fadeUp 400ms ease-out 120ms both' }}>
+          <BrandPhoto
+            src="/photos/tray-bw.jpg"
+            alt="Grip sock balancing a coffee tray"
+            height={300}
+            position="50% 42%"
+            caption="Pre-class ritual"
+            headline="Grip socks on. Matcha secured."
+          />
+        </section>
+
+        {/* ── Today's Cue — daily fact, powder left-rule + marker title ── */}
+        <div
+          className="-mt-2 -mb-2"
+          style={{
+            animation: 'fadeUp 400ms ease-out 140ms both',
+            borderLeft: '4px solid #AEC8F5',
+            padding: '2px 0 4px 16px',
+          }}
+        >
+          <PenNote size={16} rotate="-1.5deg" style={{ display: 'inline-block' }}>
+            today&apos;s cue — {todayFact.category}
+          </PenNote>
+          <p style={{ fontSize: '13.5px', lineHeight: 1.55, color: '#101012', marginTop: '6px' }}>
+            {todayFact.fact}
+          </p>
+        </div>
 
         {/* ── Recent routines (horizontal scroll) ── */}
         <section
@@ -227,9 +499,15 @@ export default function HomePage() {
         >
           <SectionLabel>Recent routines</SectionLabel>
           {recentRoutines.length === 0 ? (
-            <div className="bg-surface rounded-2xl px-5 py-10 flex flex-col items-center text-center gap-1">
-              <p className="text-sm font-medium text-stone">Nothing here yet.</p>
-              <p className="text-sm text-stone opacity-70">Build your first routine.</p>
+            <div className="bg-white border border-border rounded-3xl px-5 py-8 flex flex-col items-center text-center gap-2 shadow-card">
+              <p className="text-base font-bold text-ink">Your first routine is waiting.</p>
+              <p className="text-sm text-stone">Every great class starts with a plan.</p>
+              <Link
+                href="/build"
+                className="text-sm font-bold mt-2 text-ink underline decoration-powder decoration-2 underline-offset-4"
+              >
+                Build it now →
+              </Link>
             </div>
           ) : (
             <div
@@ -240,7 +518,7 @@ export default function HomePage() {
                 <Link
                   key={r.id}
                   href={`/build/result/${r.id}`}
-                  className="flex-shrink-0 bg-surface rounded-xl p-4 flex flex-col active:opacity-75 transition-opacity"
+                  className="flex-shrink-0 bg-white rounded-xl p-4 flex flex-col active:opacity-75 transition-opacity shadow-card"
                   style={{ minWidth: '220px', scrollSnapAlign: 'start' }}
                 >
                   <p className="text-sm font-semibold text-ink truncate">{r.name}</p>

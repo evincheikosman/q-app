@@ -1,19 +1,59 @@
 @import "tailwindcss";
 
+/*
+  Q — "POWDER" (locked July 2026)
+  Paper + ink, ONE black anchor moment per screen, powder blue as THE accent.
+  Legacy token names are remapped so existing classes still work:
+    canvas/surface → paper   forest/moss → black anchor   stone → grey
+    amber/cobalt/butter → powder
+*/
 @theme inline {
-  --color-canvas: #F6F1E9;
-  --color-surface: #EDE8DE;
-  --color-border: #E0DAD0;
-  --color-ink: #0F1A14;
-  --color-forest: #1B3828;
-  --color-moss: #3A5040;
-  --color-stone: #7A7570;
+  --color-canvas: #FFFFFF;
+  --color-paper: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-border: #E8E8E6;
+  --color-hairline: #E8E8E6;
+  --color-ink: #101012;
+  --color-black: #0D0D0F;
+  --color-forest: #0D0D0F;
+  --color-moss: #0D0D0F;
+  --color-stone: #8A8A8A;
+  --color-grey: #8A8A8A;
+  --color-powder: #AEC8F5;
+  --color-amber: #AEC8F5;
+  --color-cobalt: #AEC8F5;
+  --color-butter: #AEC8F5;
 
   --font-sans: var(--font-bricolage);
 }
 
 body {
-  background-color: #F6F1E9;
-  color: #0F1A14;
+  background-color: #FFFFFF;
+  color: #101012;
   font-family: var(--font-sans), sans-serif;
+}
+
+/* Desktop: the mobile column reads intentional — soft off-white page,
+   white app column framed by hairlines. Mobile stays pure paper. */
+@media (min-width: 720px) {
+  body {
+    background-color: #F6F6F4;
+  }
+  .app-column {
+    max-width: 512px;
+    margin-inline: auto;
+    width: 100%;
+    background-color: #FFFFFF;
+    border-inline: 1px solid #E8E8E6;
+    min-height: 100%;
+  }
+}
+
+/* The pen — a bold felt-tip marker (loaded by PenFont.tsx). Readable, crisp, heavy. */
+.font-pen {
+  font-family: "Permanent Marker", cursive;
+}
+
+@utility shadow-card {
+  box-shadow: 0 4px 20px rgba(17, 20, 24, 0.08);
 }

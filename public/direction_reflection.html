@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<!--
+  Q — Reflection card, three directions (July 9)
+  A: Marker margin — Today's Cue grammar (powder rule + marker title)
+  B: Powder block — the accent gets one full surface
+  C: On the black card — reflection rides the hero, zero extra cards
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #1A1A1A;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  display: flex; align-items: flex-start; justify-content: center;
+  gap: 48px; min-height: 100vh; padding: 48px; flex-wrap: wrap;
+}
+.col { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.lbl { color: #888; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600; }
+.marker { font-family: 'Permanent Marker', cursive; }
+
+:root {
+  --paper: #FFFFFF; --ink: #101012; --black: #0D0D0F;
+  --powder: #AEC8F5; --grey: #8A8A8A; --line: #E8E8E6;
+}
+
+.phone {
+  width: 390px; border-radius: 40px; overflow: hidden; padding: 26px 22px 30px;
+  background: var(--paper); color: var(--ink);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  display: flex; flex-direction: column; gap: 22px;
+}
+
+/* shared: the black hero above, for context */
+.hero { background: var(--black); color: #fff; border-radius: 22px; padding: 18px 20px 20px; position: relative; overflow: hidden; }
+.hero .nl { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; color: var(--powder); }
+.hero .time { font-size: 56px; font-weight: 800; line-height: 0.95; font-variation-settings: 'opsz' 96; letter-spacing: -2px; margin-top: 8px; }
+.hero .time span { color: var(--powder); }
+.hero .q { position: absolute; font-weight: 800; font-variation-settings: 'opsz' 96; color: var(--powder); opacity: 0.22; font-size: 150px; line-height: 1; right: -26px; top: -30px; pointer-events: none; }
+.cta { margin-top: 14px; background: var(--powder); color: var(--black); height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }
+
+.emoji-row { display: flex; gap: 10px; }
+.emoji-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; }
+.face { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.cap { font-size: 9px; letter-spacing: 0.3px; line-height: 1.25; text-align: center; max-width: 74px; font-weight: 600; }
+
+/* ── A: marker margin ── */
+.ruleA { border-left: 4px solid var(--powder); padding: 2px 0 6px 16px; display: flex; flex-direction: column; gap: 12px; }
+.ruleA .t { font-size: 16px; transform: rotate(-1.5deg); display: inline-block; color: var(--ink); }
+.ruleA .face { background: var(--paper); border: 1.5px solid var(--line); }
+.ruleA .cap { color: var(--grey); }
+
+/* ── B: powder block ── */
+.blockB { background: var(--powder); border-radius: 22px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
+.blockB .k { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; color: var(--black); opacity: 0.55; }
+.blockB .t { font-size: 17px; font-weight: 800; color: var(--black); font-variation-settings: 'opsz' 96; margin-top: -6px; }
+.blockB .face { background: rgba(255,255,255,0.85); }
+.blockB .cap { color: var(--black); opacity: 0.6; }
+
+/* ── C: on the black card ── */
+.heroC .divider { margin-top: 16px; height: 1px; background: rgba(255,255,255,0.14); }
+.heroC .ask { margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; position: relative; }
+.heroC .ask .q2 { font-size: 12px; line-height: 1.4; color: rgba(255,255,255,0.7); max-width: 130px; }
+.heroC .ask .q2 b { color: #fff; font-weight: 700; }
+.heroC .face { width: 46px; height: 46px; font-size: 21px; background: rgba(255,255,255,0.1); }
+.heroC .cap { color: rgba(255,255,255,0.45); }
+</style>
+</head>
+<body>
+
+<!-- A — MARKER MARGIN -->
+<div class="col">
+  <div class="phone">
+    <div class="hero">
+      <span class="q">Q</span>
+      <p class="nl">Next class</p>
+      <p class="time">11:00<span>AM</span></p>
+      <div class="cta">Build routine</div>
+    </div>
+
+    <div class="ruleA">
+      <span class="t marker">how'd sunday 11am land?</span>
+      <div class="emoji-row">
+        <button class="emoji-btn"><span class="face">🔥</span><span class="cap">landed — keep it</span></button>
+        <button class="emoji-btn"><span class="face">❤️‍🩹</span><span class="cap">good bones — rework</span></button>
+        <button class="emoji-btn"><span class="face">👎</span><span class="cap">not it — retire</span></button>
+      </div>
+    </div>
+  </div>
+  <p class="lbl">A — Marker margin</p>
+</div>
+
+<!-- B — POWDER BLOCK -->
+<div class="col">
+  <div class="phone">
+    <div class="hero">
+      <span class="q">Q</span>
+      <p class="nl">Next class</p>
+      <p class="time">11:00<span>AM</span></p>
+      <div class="cta">Build routine</div>
+    </div>
+
+    <div class="blockB">
+      <p class="k">Last class</p>
+      <p class="t">How'd Sunday 11:00 AM land?</p>
+      <div class="emoji-row">
+        <button class="emoji-btn"><span class="face">🔥</span><span class="cap">landed — keep it</span></button>
+        <button class="emoji-btn"><span class="face">❤️‍🩹</span><span class="cap">good bones — rework</span></button>
+        <button class="emoji-btn"><span class="face">👎</span><span class="cap">not it — retire</span></button>
+      </div>
+    </div>
+  </div>
+  <p class="lbl">B — Powder block</p>
+</div>
+
+<!-- C — ON THE BLACK CARD -->
+<div class="col">
+  <div class="phone">
+    <div class="hero heroC">
+      <span class="q">Q</span>
+      <p class="nl">Next class</p>
+      <p class="time">11:00<span>AM</span></p>
+      <div class="cta">Build routine</div>
+      <div class="divider"></div>
+      <div class="ask">
+        <p class="q2">How'd <b>Sunday 11:00 AM</b> land?</p>
+        <div class="emoji-row" style="gap: 8px;">
+          <button class="emoji-btn"><span class="face">🔥</span><span class="cap">keep it</span></button>
+          <button class="emoji-btn"><span class="face">❤️‍🩹</span><span class="cap">rework</span></button>
+          <button class="emoji-btn"><span class="face">👎</span><span class="cap">retire</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="lbl">C — On the black card</p>
+</div>
+
+</body>
+</html>

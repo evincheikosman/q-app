@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { IconMicrophone, IconChevronLeft, IconCheck, IconBrandSpotify } from '@tabler/icons-react'
 import type { SavedRoutine } from '@/types/routine'
+import QMarkLoader from '@/components/QMarkLoader'
+import facts from '@/data/facts.json'
 
 // ─── Schedule ────────────────────────────────────────────────────────────────
 
@@ -62,6 +64,12 @@ const ENERGY_OPTIONS = [
   },
 ]
 
+const LEVEL_OPTIONS = [
+  { label: 'Beginner-friendly', description: 'New faces in the room — approachable moves, extra setup time.' },
+  { label: 'Mixed levels', description: 'The usual crowd — challenge them, keep it doable.' },
+  { label: 'Advanced regulars', description: 'They know the machine — bring the hard stuff.' },
+]
+
 const VIBE_SUGGESTIONS = [
   'dark and driven',
   'feel-good flow',
@@ -78,9 +86,13 @@ export default function BuildPage() {
   const [selectedClasses, setSelectedClasses] = useState<string[]>([])
   const [selectedEmphasis, setSelectedEmphasis] = useState<string[]>([])
   const [selectedEnergy, setSelectedEnergy] = useState<string | null>(null)
+  const [classLevel, setClassLevel] = useState('Mixed levels')
   const [vibeText, setVibeText] = useState('')
+  const [moveNotes, setMoveNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [currentFactIndex, setCurrentFactIndex] = useState(() => Math.floor(Math.random() * facts.length))
+  const [factVisible, setFactVisible] = useState(true)
   const [savedRoutines, setSavedRoutines] = useState<SavedRoutine[]>([])
   const [optionsOpenForSlot, setOptionsOpenForSlot] = useState<string | null>(null)
 
@@ -89,6 +101,13 @@ export default function BuildPage() {
   const classDates = SCHEDULE
     .map(({ day, hour, minute }) => nextOccurrence(day, hour, minute, now))
     .sort((a, b) => a.getTime() - b.getTime())
+
+  // One fact per generation — picked when loading starts, held for the full wait
+  useEffect(() => {
+    if (!loading) return
+    setCurrentFactIndex(Math.floor(Math.random() * facts.length))
+    setFactVisible(true)
+  }, [loading])
 
   useEffect(() => {
     const raw = localStorage.getItem('q_build_prefill')
@@ -100,6 +119,8 @@ export default function BuildPage() {
       if (p.selectedEmphasis) setSelectedEmphasis(p.selectedEmphasis)
       if (p.energyArc) setSelectedEnergy(p.energyArc)
       if (p.vibe) setVibeText(p.vibe)
+      if (p.classLevel) setClassLevel(p.classLevel)
+      if (p.moveNotes) setMoveNotes(p.moveNotes)
     } catch {}
   }, [])
 
@@ -169,6 +190,8 @@ export default function BuildPage() {
           emphasis: selectedEmphasis.join(' + ') || 'Evenly distributed',
           energyArc: selectedEnergy,
           vibe: vibeText || 'No specific vibe',
+          classLevel,
+          moveNotes: moveNotes.trim() || null,
           selectedClasses,
         }),
       })
@@ -195,6 +218,8 @@ export default function BuildPage() {
         energyArc: selectedEnergy,
         selectedEmphasis,
         vibe: vibeText,
+        classLevel,
+        moveNotes: moveNotes.trim() || null,
       }))
       router.push('/build/result')
     } catch {
@@ -204,28 +229,51 @@ export default function BuildPage() {
   }
 
   if (loading) {
+    const fact = facts[currentFactIndex]
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100dvh-72px)] px-5 text-center gap-3">
-        <p className="text-2xl font-extrabold text-ink">Building your class...</p>
-        <p className="text-sm text-stone">This takes about 15–20 seconds.</p>
+      <div className="flex flex-col items-center justify-center h-[calc(100dvh-72px)] px-5 text-center gap-6">
+        <QMarkLoader />
+        <div
+          className="flex flex-col gap-2"
+          style={{ opacity: factVisible ? 1 : 0, transition: 'opacity 300ms ease' }}
+        >
+          <p className="text-xs text-stone tracking-widest uppercase">Did you know</p>
+          <p className="text-sm text-ink leading-relaxed max-w-sm mx-auto">{fact.fact}</p>
+        </div>
+        <div className="flex flex-col gap-1.5 items-center">
+          <p className="text-2xl font-extrabold text-ink">Building your class...</p>
+          <p className="text-sm text-stone">This takes about 15–20 seconds.</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-72px)]">
+    <div className="flex flex-col h-[calc(100dvh-72px)] max-w-lg mx-auto w-full">
 
       {/* ── Progress header ── */}
       <div className="shrink-0 px-5 pt-10 pb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-extrabold text-ink">Build</h1>
-          <span className="text-sm font-medium text-stone">Step {step} of 4</span>
+        <div className="flex items-end justify-between mb-4">
+          <h1
+            className="font-extrabold text-ink"
+            style={{ fontSize: '34px', lineHeight: 1, fontVariationSettings: "'opsz' 96" }}
+          >
+            Build
+          </h1>
+          <span className="text-xs font-semibold tracking-widest uppercase text-stone">
+            Step {step} <span className="text-border">/</span> 4
+          </span>
         </div>
-        <div className="h-1 rounded-full bg-border overflow-hidden">
+        <div className="h-1.5 rounded-full bg-border overflow-hidden relative">
           <div
-            className="h-full rounded-full bg-forest transition-[width] duration-300 ease-out"
-            style={{ width: `${(step / 4) * 100}%` }}
-          />
+            className="h-full rounded-full transition-[width] duration-300 ease-out relative"
+            style={{ width: `${(step / 4) * 100}%`, backgroundColor: '#0D0D0F' }}
+          >
+            <span
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: '#AEC8F5', border: '2px solid #0D0D0F' }}
+            />
+          </div>
         </div>
       </div>
 
@@ -245,10 +293,8 @@ export default function BuildPage() {
                 <div key={id} className="flex flex-col gap-2">
                   <button
                     onClick={() => handleSlotTap(id, linked)}
-                    className={`w-full text-left rounded-2xl px-5 py-4 border-2 transition-colors ${
-                      active
-                        ? 'border-forest bg-[rgba(27,56,40,0.08)]'
-                        : 'border-border bg-surface'
+                    className={`w-full text-left rounded-2xl px-5 py-4 transition-all shadow-card bg-white border-2 ${
+                      active ? 'border-forest' : 'border-transparent'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -256,18 +302,24 @@ export default function BuildPage() {
                         <p className="text-xs font-medium text-stone uppercase tracking-widest">
                           {formatDate(date)}
                         </p>
-                        <p className="text-2xl font-extrabold text-ink mt-1 leading-none">
+                        <p
+                          className="font-extrabold text-ink mt-1 leading-none"
+                          style={{ fontSize: '28px', fontVariationSettings: "'opsz' 96" }}
+                        >
                           {formatTime(date)}
                         </p>
                       </div>
                       {active && (
-                        <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-forest flex items-center justify-center">
-                          <IconCheck size={11} stroke={2.5} color="white" />
+                        <span
+                          className="shrink-0 mt-0.5 w-6 h-6 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: '#AEC8F5' }}
+                        >
+                          <IconCheck size={13} stroke={3} color="#0D0D0F" />
                         </span>
                       )}
                     </div>
                     {linked && (
-                      <p className="text-xs font-semibold text-forest mt-2">Routine ready</p>
+                      <p className="text-xs font-semibold mt-2 text-ink underline decoration-powder decoration-2 underline-offset-2">Routine ready</p>
                     )}
                   </button>
 
@@ -316,10 +368,8 @@ export default function BuildPage() {
             })}
             <button
               onClick={() => toggleClass('none')}
-              className={`w-full text-left rounded-2xl px-5 py-4 border-2 transition-colors ${
-                selectedClasses.includes('none')
-                  ? 'border-forest bg-[rgba(27,56,40,0.08)]'
-                  : 'border-border bg-surface'
+              className={`w-full text-left rounded-2xl px-5 py-4 transition-all shadow-card bg-white border-2 ${
+                selectedClasses.includes('none') ? 'border-forest' : 'border-transparent'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
@@ -328,8 +378,11 @@ export default function BuildPage() {
                   <p className="text-sm text-stone mt-0.5">Just building for practice</p>
                 </div>
                 {selectedClasses.includes('none') && (
-                  <span className="shrink-0 w-5 h-5 rounded-full bg-forest flex items-center justify-center">
-                    <IconCheck size={11} stroke={2.5} color="white" />
+                  <span
+                    className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: '#AEC8F5' }}
+                  >
+                    <IconCheck size={13} stroke={3} color="#0D0D0F" />
                   </span>
                 )}
               </div>
@@ -355,12 +408,12 @@ export default function BuildPage() {
                     key={option}
                     onClick={() => toggleEmphasis(option)}
                     disabled={dimmed}
-                    className={`rounded-full px-5 py-3 text-sm font-semibold border-2 transition-all ${
+                    className={`rounded-full px-5 py-3 text-sm font-bold border-2 transition-all ${
                       active
-                        ? 'bg-forest text-canvas border-forest'
+                        ? 'bg-forest text-white border-forest'
                         : dimmed
-                        ? 'bg-surface text-stone border-border opacity-35'
-                        : 'bg-surface text-ink border-border'
+                        ? 'bg-white text-stone border-border opacity-35'
+                        : 'bg-white text-ink border-border hover:border-forest'
                     }`}
                   >
                     {option}
@@ -381,8 +434,8 @@ export default function BuildPage() {
                 <button
                   key={label}
                   onClick={() => setSelectedEnergy(label)}
-                  className={`w-full text-left rounded-2xl px-5 py-5 border-2 transition-colors ${
-                    active ? 'border-forest bg-surface' : 'border-border bg-surface'
+                  className={`w-full text-left rounded-2xl px-5 py-5 border-2 transition-all shadow-card ${
+                    active ? 'border-forest bg-white' : 'border-transparent bg-white'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -391,14 +444,53 @@ export default function BuildPage() {
                       <p className="text-sm text-stone mt-1.5 leading-relaxed">{description}</p>
                     </div>
                     {active && (
-                      <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-forest flex items-center justify-center">
-                        <IconCheck size={11} stroke={2.5} color="white" />
+                      <span
+                        className="shrink-0 mt-0.5 w-6 h-6 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: '#AEC8F5' }}
+                      >
+                        <IconCheck size={13} stroke={3} color="#0D0D0F" />
                       </span>
                     )}
                   </div>
                 </button>
               )
             })}
+
+            {/* Who's in the room — tunes difficulty within the arc */}
+            <div className="mt-4 flex flex-col gap-3">
+              <p className="text-xs font-medium text-stone uppercase tracking-widest">
+                Who&apos;s in the room?
+              </p>
+              <div className="flex flex-col gap-2">
+                {LEVEL_OPTIONS.map(({ label, description }) => {
+                  const active = classLevel === label
+                  return (
+                    <button
+                      key={label}
+                      onClick={() => setClassLevel(label)}
+                      className={`w-full text-left rounded-2xl px-4 py-3 border-2 transition-all bg-white ${
+                        active ? 'border-forest' : 'border-border'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="text-sm font-bold text-ink">{label}</p>
+                          <p className="text-xs text-stone mt-0.5">{description}</p>
+                        </div>
+                        {active && (
+                          <span
+                            className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: '#AEC8F5' }}
+                          >
+                            <IconCheck size={11} stroke={3} color="#0D0D0F" />
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
           </div>
         )}
 
@@ -435,17 +527,39 @@ export default function BuildPage() {
                 {VIBE_SUGGESTIONS.map(s => (
                   <button
                     key={s}
-                    onClick={() => setVibeText(s)}
+                    onClick={() =>
+                      setVibeText(t => {
+                        // Multi-select: toggle the pick in/out of a comma-separated list
+                        const parts = t.split(',').map(p => p.trim()).filter(Boolean)
+                        const next = parts.includes(s)
+                          ? parts.filter(p => p !== s)
+                          : [...parts, s]
+                        return next.join(', ')
+                      })
+                    }
                     className={`rounded-full px-4 py-2 text-sm font-medium border-2 transition-all ${
-                      vibeText === s
-                        ? 'bg-forest text-canvas border-forest'
-                        : 'bg-surface text-ink border-border'
+                      vibeText.split(',').map(p => p.trim()).includes(s)
+                        ? 'bg-forest text-white border-forest'
+                        : 'bg-white text-ink border-border hover:border-forest'
                     }`}
                   >
                     {s}
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Optional: moves to feature or skip — for when you know the room */}
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-medium text-stone uppercase tracking-widest">
+                Feature or skip anything? <span className="normal-case font-normal text-stone/70">(optional)</span>
+              </p>
+              <input
+                value={moveNotes}
+                onChange={e => setMoveNotes(e.target.value)}
+                placeholder="e.g. feature Spider Lunge · skip Wheelbarrow, no overhead pressing"
+                className="w-full bg-surface rounded-2xl px-4 py-3.5 text-sm text-ink placeholder:text-stone/60 outline-none border-2 border-border focus:border-forest transition-colors"
+              />
             </div>
           </div>
         )}
@@ -472,9 +586,9 @@ export default function BuildPage() {
           <button
             onClick={handleNext}
             disabled={!canAdvance}
-            className="flex-1 h-14 rounded-2xl font-semibold text-base bg-forest text-canvas transition-all active:opacity-80 disabled:opacity-35"
+            className="flex-1 h-14 rounded-2xl font-bold text-base transition-all active:opacity-80 disabled:bg-border disabled:text-stone bg-forest text-white"
           >
-            {step === 4 ? 'Generate routine' : 'Next'}
+            {step === 4 ? 'Generate routine →' : 'Next'}
           </button>
         </div>
       </div>
