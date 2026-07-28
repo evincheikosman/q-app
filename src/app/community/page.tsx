@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { IconMessageCircle, IconSend } from '@tabler/icons-react'
 import { ScribbleArrow, PenNote, PEN } from '@/components/Scribble'
 import BrandPhoto from '@/components/BrandPhoto'
+import { loadProfile } from '@/lib/profile'
 
 // ─── Sample feed (fictional instructors — the multi-studio vision) ────────────
 
@@ -91,7 +92,7 @@ interface Comment {
 type Reactions = Record<string, { heart?: boolean; cheer?: boolean }>
 type Comments = Record<string, Comment[]>
 
-const ME = { name: 'Evîn Cheikosman', studio: 'Core40 San Francisco' }
+const DEFAULT_ME = { name: 'You', studio: 'Instructor' }
 
 function initials(name: string) {
   return name.split(' ').map(w => w[0]).join('')
@@ -123,11 +124,14 @@ export default function CommunityPage() {
   const [composing, setComposing] = useState(false)
   const [commentOpenFor, setCommentOpenFor] = useState<string | null>(null)
   const [commentDraft, setCommentDraft] = useState('')
+  const [ME, setME] = useState(DEFAULT_ME)
 
   useEffect(() => {
     setPosts(load('q_community_posts', [] as UserPost[]))
     setReactions(load('q_community_reactions', {} as Reactions))
     setComments(load('q_community_comments', {} as Comments))
+    const profile = loadProfile()
+    if (profile?.name) setME({ name: profile.name, studio: profile.studio || 'Instructor' })
   }, [])
 
   function persistPosts(next: UserPost[]) {

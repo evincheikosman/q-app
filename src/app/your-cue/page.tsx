@@ -6,6 +6,7 @@ import { PenNote } from '@/components/Scribble'
 import NotesStack from '@/components/NotesStack'
 import BrandPhoto from '@/components/BrandPhoto'
 import type { SavedRoutine } from '@/types/routine'
+import { loadProfile, type Profile } from '@/lib/profile'
 
 /** Distinct moves ever used — the data behind "NEVER REPEATS." */
 function computeDistinctMoves(routines: SavedRoutine[]): number {
@@ -135,13 +136,10 @@ const SIX_MONTHS = 182 * 24 * 60 * 60 * 1000
 
 export default function YourCuePage() {
   const [routines, setRoutines] = useState<SavedRoutine[]>([])
-  // Headshot appears automatically once /photos/evin-bw.jpg exists
-  const [headshotOk, setHeadshotOk] = useState(false)
+  const [profile, setProfile] = useState<Profile | null>(null)
 
   useEffect(() => {
-    const probe = new window.Image()
-    probe.onload = () => setHeadshotOk(true)
-    probe.src = '/photos/evin-bw.jpg'
+    setProfile(loadProfile())
   }, [])
 
   useEffect(() => {
@@ -223,11 +221,11 @@ export default function YourCuePage() {
         className="relative rounded-3xl overflow-hidden"
         style={{ height: '560px', backgroundColor: '#0D0D0F' }}
       >
-        {headshotOk && (
+        {profile?.photoDataUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src="/photos/evin-bw.jpg"
-            alt="Evîn Cheikosman"
+            src={profile.photoDataUrl}
+            alt={profile.name || 'Instructor'}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ objectPosition: '50% 20%' }}
           />
@@ -261,7 +259,7 @@ export default function YourCuePage() {
         {/* name — big powder marker */}
         <div className="absolute" style={{ top: '16px', left: '20px' }}>
           <PenNote color="#AEC8F5" size={52} rotate="-3deg">
-            Evîn
+            {profile?.name || 'You'}
           </PenNote>
         </div>
 
@@ -313,7 +311,7 @@ export default function YourCuePage() {
           className="absolute text-[10px] font-bold uppercase"
           style={{ left: '20px', bottom: '126px', letterSpacing: '2.5px', color: 'rgba(255,255,255,0.85)' }}
         >
-          Certified Lagree Instructor · Core40 SF
+          {profile?.studio ? `Certified Lagree Instructor · ${profile.studio}` : 'Certified Lagree Instructor'}
         </p>
 
         {/* giant statement — last line in powder */}

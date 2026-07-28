@@ -7,6 +7,7 @@ import { PenNote } from '@/components/Scribble'
 import facts from '@/data/facts.json'
 import type { SavedRoutine } from '@/types/routine'
 import { seedDemoData, isFirstRun, markIntroSeen } from '@/lib/demo'
+import { saveProfile, loadProfile } from '@/lib/profile'
 
 // ─── First-run intro — three beats, then in. Never shows again. ──────────────
 
@@ -28,51 +29,169 @@ const INTRO_SLIDES = [
   },
 ]
 
+type IntroPhase = 'slides' | 'profile' | 'cta'
+
 function IntroOverlay({ onDone }: { onDone: (seed: boolean) => void }) {
   const [slide, setSlide] = useState(0)
+  const [phase, setPhase] = useState<IntroPhase>('slides')
+  const [name, setName] = useState('')
+  const [studio, setStudio] = useState('')
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null)
   const s = INTRO_SLIDES[slide]
-  const last = slide === INTRO_SLIDES.length - 1
+  const lastSlide = slide === INTRO_SLIDES.length - 1
+
+  function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setPhotoDataUrl(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  function continueFromProfile() {
+    saveProfile({ name: name.trim() || 'Instructor', studio: studio.trim(), photoDataUrl })
+    setPhase('cta')
+  }
 
   return (
     <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: '#0D0D0F', zIndex: 60 }}>
-      <div className="flex-1 flex flex-col items-start justify-center px-8 gap-4 max-w-lg mx-auto w-full relative">
-        <span
-          aria-hidden
-          className="absolute font-extrabold pointer-events-none select-none"
-          style={{ right: '-40px', top: '10%', fontSize: '220px', lineHeight: 1, color: '#AEC8F5', opacity: 0.14, fontVariationSettings: "'opsz' 96" }}
-        >
-          Q
-        </span>
-        <p className="text-[10px] font-bold tracking-[3px] uppercase relative" style={{ color: '#AEC8F5' }}>
-          {s.k}
-        </p>
-        <p
-          className="text-white font-extrabold relative"
-          style={{ fontSize: '40px', lineHeight: 1.02, letterSpacing: '-0.5px', fontVariationSettings: "'opsz' 96" }}
-        >
-          {s.title}
-        </p>
-        <p className="text-sm leading-relaxed relative max-w-[300px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          {s.body}
-        </p>
-      </div>
-
-      <div className="px-8 pb-12 max-w-lg mx-auto w-full flex flex-col gap-4">
-        {/* dots */}
-        <div className="flex gap-1.5">
-          {INTRO_SLIDES.map((_, i) => (
+      {phase === 'slides' && (
+        <>
+          <div className="flex-1 flex flex-col items-start justify-center px-8 gap-4 max-w-lg mx-auto w-full relative">
             <span
-              key={i}
-              className="h-1 rounded-full transition-all"
-              style={{
-                width: i === slide ? '20px' : '8px',
-                backgroundColor: i === slide ? '#AEC8F5' : 'rgba(255,255,255,0.25)',
-              }}
-            />
-          ))}
-        </div>
-        {last ? (
-          <div className="flex flex-col gap-2.5">
+              aria-hidden
+              className="absolute font-extrabold pointer-events-none select-none"
+              style={{ right: '-40px', top: '10%', fontSize: '220px', lineHeight: 1, color: '#AEC8F5', opacity: 0.14, fontVariationSettings: "'opsz' 96" }}
+            >
+              Q
+            </span>
+            <p className="text-[10px] font-bold tracking-[3px] uppercase relative" style={{ color: '#AEC8F5' }}>
+              {s.k}
+            </p>
+            <p
+              className="text-white font-extrabold relative"
+              style={{ fontSize: '40px', lineHeight: 1.02, letterSpacing: '-0.5px', fontVariationSettings: "'opsz' 96" }}
+            >
+              {s.title}
+            </p>
+            <p className="text-sm leading-relaxed relative max-w-[300px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              {s.body}
+            </p>
+          </div>
+
+          <div className="px-8 pb-12 max-w-lg mx-auto w-full flex flex-col gap-4">
+            <div className="flex gap-1.5">
+              {INTRO_SLIDES.map((_, i) => (
+                <span
+                  key={i}
+                  className="h-1 rounded-full transition-all"
+                  style={{
+                    width: i === slide ? '20px' : '8px',
+                    backgroundColor: i === slide ? '#AEC8F5' : 'rgba(255,255,255,0.25)',
+                  }}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => (lastSlide ? setPhase('profile') : setSlide(v => v + 1))}
+              className="w-full text-center font-bold text-base rounded-2xl py-3.5"
+              style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
+
+      {phase === 'profile' && (
+        <>
+          <div className="flex-1 flex flex-col items-start justify-center px-8 gap-5 max-w-lg mx-auto w-full relative">
+            <span
+              aria-hidden
+              className="absolute font-extrabold pointer-events-none select-none"
+              style={{ right: '-40px', top: '6%', fontSize: '220px', lineHeight: 1, color: '#AEC8F5', opacity: 0.14, fontVariationSettings: "'opsz' 96" }}
+            >
+              Q
+            </span>
+            <div className="relative">
+              <p className="text-[10px] font-bold tracking-[3px] uppercase" style={{ color: '#AEC8F5' }}>
+                Who&apos;s teaching?
+              </p>
+              <p
+                className="text-white font-extrabold mt-2"
+                style={{ fontSize: '32px', lineHeight: 1.05, letterSpacing: '-0.5px', fontVariationSettings: "'opsz' 96" }}
+              >
+                Make it yours.
+              </p>
+              <p className="text-sm leading-relaxed mt-2 max-w-[300px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                Your name and photo show up on Your Cue — the poster Q builds from your own teaching data.
+              </p>
+            </div>
+
+            <div className="w-full flex flex-col gap-3 relative">
+              <input
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Your name"
+                autoFocus
+                className="w-full text-base rounded-2xl px-4 py-3.5 bg-white/10 border-2 border-white/15 text-white placeholder:text-white/40 outline-none focus:border-[#AEC8F5] transition-colors"
+              />
+              <input
+                value={studio}
+                onChange={e => setStudio(e.target.value)}
+                placeholder="Studio (optional) — e.g. Core40 SF"
+                className="w-full text-base rounded-2xl px-4 py-3.5 bg-white/10 border-2 border-white/15 text-white placeholder:text-white/40 outline-none focus:border-[#AEC8F5] transition-colors"
+              />
+              <label className="w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 bg-white/10 border-2 border-white/15 cursor-pointer">
+                {photoDataUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={photoDataUrl} alt="" className="w-9 h-9 rounded-full object-cover shrink-0" />
+                ) : (
+                  <span className="w-9 h-9 rounded-full bg-white/15 shrink-0" />
+                )}
+                <span className="text-sm font-semibold text-white/70">
+                  {photoDataUrl ? 'Change photo (optional)' : 'Add a photo (optional)'}
+                </span>
+                <input type="file" accept="image/*" onChange={handlePhoto} className="hidden" />
+              </label>
+            </div>
+          </div>
+
+          <div className="px-8 pb-12 max-w-lg mx-auto w-full flex flex-col gap-2.5">
+            <button
+              onClick={continueFromProfile}
+              className="w-full text-center font-bold text-base rounded-2xl py-3.5"
+              style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
+            >
+              Continue
+            </button>
+          </div>
+        </>
+      )}
+
+      {phase === 'cta' && (
+        <div className="flex-1 flex flex-col items-start justify-center px-8 gap-4 max-w-lg mx-auto w-full relative">
+          <span
+            aria-hidden
+            className="absolute font-extrabold pointer-events-none select-none"
+            style={{ right: '-40px', top: '10%', fontSize: '220px', lineHeight: 1, color: '#AEC8F5', opacity: 0.14, fontVariationSettings: "'opsz' 96" }}
+          >
+            Q
+          </span>
+          <p className="text-[10px] font-bold tracking-[3px] uppercase relative" style={{ color: '#AEC8F5' }}>
+            READY
+          </p>
+          <p
+            className="text-white font-extrabold relative"
+            style={{ fontSize: '40px', lineHeight: 1.02, letterSpacing: '-0.5px', fontVariationSettings: "'opsz' 96" }}
+          >
+            One more thing.
+          </p>
+          <p className="text-sm leading-relaxed relative max-w-[300px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            Want to see Q fully lived-in, or start with a completely empty library?
+          </p>
+
+          <div className="w-full flex flex-col gap-2.5 mt-4 relative">
             <button
               onClick={() => onDone(true)}
               className="w-full text-center font-bold text-base rounded-2xl py-3.5"
@@ -88,16 +207,8 @@ function IntroOverlay({ onDone }: { onDone: (seed: boolean) => void }) {
               Start fresh
             </button>
           </div>
-        ) : (
-          <button
-            onClick={() => setSlide(v => v + 1)}
-            className="w-full text-center font-bold text-base rounded-2xl py-3.5"
-            style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
-          >
-            Next
-          </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -276,11 +387,14 @@ function LinkedDot({ white = false }: { white?: boolean }) {
 export default function HomePage() {
   const [routines, setRoutines] = useState<SavedRoutine[]>([])
   const [showIntro, setShowIntro] = useState(false)
+  const [firstName, setFirstName] = useState('there')
   const now = new Date()
   const hour = now.getHours()
 
   useEffect(() => {
     if (isFirstRun()) setShowIntro(true)
+    const profile = loadProfile()
+    if (profile?.name) setFirstName(profile.name.split(' ')[0])
     try {
       const stored = localStorage.getItem('q_routines')
       if (stored) {
@@ -292,6 +406,8 @@ export default function HomePage() {
 
   function finishIntro(seed: boolean) {
     markIntroSeen()
+    const profile = loadProfile()
+    if (profile?.name) setFirstName(profile.name.split(' ')[0])
     if (seed) {
       seedDemoData()
       try {
@@ -373,7 +489,7 @@ export default function HomePage() {
             className="font-extrabold text-ink"
             style={{ fontSize: '40px', lineHeight: 1.05, fontVariationSettings: "'opsz' 96" }}
           >
-            {greeting(hour)},<br />Evîn.
+            {greeting(hour)},<br />{firstName}.
           </h1>
         </div>
 
