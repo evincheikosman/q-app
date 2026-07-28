@@ -27,6 +27,14 @@
   --font-sans: var(--font-bricolage);
 }
 
+/* Global overflow guard — nothing in the app should ever be able to force a
+   horizontal scrollbar on the page itself, no matter what a stray fixed-width
+   or bleeding decorative element does inside a component. */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   background-color: #FFFFFF;
   color: #101012;

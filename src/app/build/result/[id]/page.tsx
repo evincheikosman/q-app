@@ -477,10 +477,10 @@ export default function ViewRoutinePage({
         <div
           role="status"
           className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 rounded-full pl-4 pr-2 py-2 shadow-lg"
-          style={{ bottom: '88px', backgroundColor: '#0D0D0F' }}
+          style={{ bottom: '88px', backgroundColor: '#0D0D0F', maxWidth: 'calc(100vw - 40px)' }}
         >
-          <IconCheck size={14} stroke={2.5} style={{ color: '#AEC8F5' }} />
-          <span className="text-xs font-semibold text-white whitespace-nowrap">
+          <IconCheck size={14} stroke={2.5} style={{ color: '#AEC8F5' }} className="shrink-0" />
+          <span className="text-xs font-semibold text-white whitespace-nowrap overflow-hidden text-ellipsis">
             Shared with {sharedWith.name.split(' ')[0]}
           </span>
           <Link

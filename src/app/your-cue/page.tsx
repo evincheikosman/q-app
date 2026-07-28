@@ -284,9 +284,15 @@ export default function YourCuePage() {
           Q
         </span>
 
-        {/* name — big powder marker */}
-        <div className="absolute" style={{ top: '16px', left: '20px' }}>
-          <PenNote color="#AEC8F5" size={52} rotate="-3deg">
+        {/* name — big powder marker. Capped + wrapping so a long name can't
+            run past the card edge or under the Q mark. */}
+        <div className="absolute" style={{ top: '16px', left: '20px', right: '90px' }}>
+          <PenNote
+            color="#AEC8F5"
+            size={52}
+            rotate="-3deg"
+            style={{ overflowWrap: 'break-word', wordBreak: 'break-word', display: 'block' }}
+          >
             {profile?.name || 'You'}
           </PenNote>
         </div>

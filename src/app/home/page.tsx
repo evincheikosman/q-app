@@ -54,10 +54,10 @@ function IntroOverlay({ onDone }: { onDone: (seed: boolean) => void }) {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col" style={{ backgroundColor: '#0D0D0F', zIndex: 60 }}>
+    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#0D0D0F', zIndex: 60 }}>
       {phase === 'slides' && (
         <>
-          <div className="flex-1 flex flex-col items-start justify-center px-8 gap-4 max-w-lg mx-auto w-full relative">
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-start justify-center px-8 gap-4 max-w-lg mx-auto w-full relative">
             <span
               aria-hidden
               className="absolute font-extrabold pointer-events-none select-none"
@@ -105,7 +105,7 @@ function IntroOverlay({ onDone }: { onDone: (seed: boolean) => void }) {
 
       {phase === 'profile' && (
         <>
-          <div className="flex-1 flex flex-col items-start justify-center px-8 gap-5 max-w-lg mx-auto w-full relative">
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-start justify-center px-8 gap-5 max-w-lg mx-auto w-full relative">
             <span
               aria-hidden
               className="absolute font-extrabold pointer-events-none select-none"
@@ -170,7 +170,7 @@ function IntroOverlay({ onDone }: { onDone: (seed: boolean) => void }) {
       )}
 
       {phase === 'cta' && (
-        <div className="flex-1 flex flex-col items-start justify-center px-8 gap-4 max-w-lg mx-auto w-full relative">
+        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-start justify-center px-8 gap-4 max-w-lg mx-auto w-full relative">
           <span
             aria-hidden
             className="absolute font-extrabold pointer-events-none select-none"
