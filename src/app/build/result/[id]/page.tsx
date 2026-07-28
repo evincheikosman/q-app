@@ -7,10 +7,14 @@ import { useSession, signIn } from 'next-auth/react'
 import { IconBrandSpotify, IconShare2, IconX, IconSearch, IconCheck, IconRefresh, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-react'
 import RoutineView from '@/components/RoutineView'
 import type { Block, SavedRoutine, SlotDetail } from '@/types/routine'
-import { initials, loadThreads, sendMessage, byEngagement, type Instructor, type Message } from '@/lib/instructors'
+import { initials, loadThreads, sendMessage, byEngagement, type Message } from '@/lib/instructors'
+import { ensureAccount, loadFriends, sendDirectMessage, type Friend } from '@/lib/social'
+import { isSocialConfigured } from '@/lib/supabaseClient'
+import { loadProfile } from '@/lib/profile'
 import { useUndoToast } from '@/components/Toast'
 
 type ShareScope = 'routine' | 'both' | 'playlist'
+type ShareTarget = { id: string; name: string; studio: string; avatarColor: string; photo?: string | null; kind: 'friend' | 'instructor' }
 
 /** "Depeche Mode, Charli XCX & more" from the tracklist */
 function playlistArtists(tracks: NonNullable<SavedRoutine['playlistTracks']>): string {
@@ -19,44 +23,62 @@ function playlistArtists(tracks: NonNullable<SavedRoutine['playlistTracks']>): s
   return unique.length > 2 ? `${first} & more` : first
 }
 
-/** Share sheet — most-engaged instructors first, searchable, one tap to DM the routine */
+/** Share sheet — real friends first (if connected), then most-engaged sample
+ *  instructors, searchable, one tap to DM the routine. */
 function ShareSheet({
   routine,
+  friends,
   onClose,
   onShared,
 }: {
   routine: SavedRoutine
+  friends: Friend[]
   onClose: () => void
-  onShared: (inst: Instructor) => void
+  onShared: (target: { id: string; name: string }) => void
 }) {
   const [query, setQuery] = useState('')
   const hasPlaylist = !!routine.playlistTracks && routine.playlistTracks.length > 0
   const [scope, setScope] = useState<ShareScope>(hasPlaylist ? 'both' : 'routine')
-  const ordered = byEngagement(loadThreads())
+  const friendTargets: ShareTarget[] = friends.map(f => ({
+    id: f.id,
+    name: f.name,
+    studio: f.studio ?? 'Instructor',
+    avatarColor: '#0D0D0F',
+    photo: f.photoDataUrl,
+    kind: 'friend',
+  }))
+  const instructorTargets: ShareTarget[] = byEngagement(loadThreads()).map(i => ({
+    id: i.id,
+    name: i.name,
+    studio: i.studio,
+    avatarColor: i.avatarColor,
+    kind: 'instructor',
+  }))
+  const all = [...friendTargets, ...instructorTargets]
   const q = query.trim().toLowerCase()
-  const results = q ? ordered.filter(i => i.name.toLowerCase().includes(q)) : ordered
+  const results = q ? all.filter(t => t.name.toLowerCase().includes(q)) : all
 
-  function share(inst: Instructor) {
-    const message: Message = { from: 'me', ts: Date.now() }
-    if (scope !== 'playlist') {
-      message.routine = {
-        routineId: routine.id,
-        name: routine.name,
-        focus: routine.tldr.focus,
-        minutes: routine.totalMinutes,
-      }
+  function share(target: ShareTarget) {
+    const routineShare = scope !== 'playlist'
+      ? { routineId: routine.id, name: routine.name, focus: routine.tldr.focus, minutes: routine.totalMinutes }
+      : undefined
+    const playlistShare = scope !== 'routine' && routine.playlistTracks
+      ? {
+          routineId: routine.id,
+          name: routine.name,
+          trackCount: routine.playlistTracks.length,
+          artists: playlistArtists(routine.playlistTracks),
+          spotifyUrl: routine.spotifyPlaylistUrl ?? null,
+        }
+      : undefined
+
+    if (target.kind === 'friend') {
+      sendDirectMessage(target.id, { routineShare, playlistShare })
+    } else {
+      const message: Message = { from: 'me', ts: Date.now(), routine: routineShare, playlist: playlistShare }
+      sendMessage(target.id, message)
     }
-    if (scope !== 'routine' && routine.playlistTracks) {
-      message.playlist = {
-        routineId: routine.id,
-        name: routine.name,
-        trackCount: routine.playlistTracks.length,
-        artists: playlistArtists(routine.playlistTracks),
-        spotifyUrl: routine.spotifyPlaylistUrl ?? null,
-      }
-    }
-    sendMessage(inst.id, message)
-    onShared(inst)
+    onShared({ id: target.id, name: target.name })
   }
 
   return (
@@ -112,28 +134,43 @@ function ShareSheet({
 
         <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto">
           {results.length === 0 && (
-            <p className="text-xs text-stone text-center py-4">No instructor by that name.</p>
+            <p className="text-xs text-stone text-center py-4">No one by that name.</p>
           )}
-          {results.map(inst => (
+          {results.map(target => (
             <button
-              key={inst.id}
-              onClick={() => share(inst)}
+              key={`${target.kind}-${target.id}`}
+              onClick={() => share(target)}
               className="flex items-center gap-3 rounded-2xl px-3 py-2.5 hover:bg-surface text-left transition-colors"
             >
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                style={{ backgroundColor: inst.avatarColor }}
-              >
-                <span
-                  className="text-xs font-bold"
-                  style={{ color: inst.avatarColor === '#AEC8F5' ? '#0D0D0F' : '#FFFFFF' }}
+              {target.photo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={target.photo} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: target.avatarColor }}
                 >
-                  {initials(inst.name)}
-                </span>
-              </div>
+                  <span
+                    className="text-xs font-bold"
+                    style={{ color: target.avatarColor === '#AEC8F5' ? '#0D0D0F' : '#FFFFFF' }}
+                  >
+                    {initials(target.name)}
+                  </span>
+                </div>
+              )}
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-ink truncate">{inst.name}</p>
-                <p className="text-xs text-stone truncate">{inst.studio}</p>
+                <p className="text-sm font-bold text-ink truncate flex items-center gap-1.5">
+                  {target.name}
+                  {target.kind === 'friend' && (
+                    <span
+                      className="text-[8px] font-bold uppercase tracking-wide rounded-full px-1.5 py-0.5"
+                      style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
+                    >
+                      friend
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs text-stone truncate">{target.studio}</p>
               </div>
               <span
                 className="shrink-0 text-xs font-bold rounded-full px-3 py-1.5"
@@ -179,8 +216,17 @@ export default function ViewRoutinePage({
   const [saved, setSaved] = useState(false)
   const [updated, setUpdated] = useState(false)
   const [sharing, setSharing] = useState(false)
-  const [sharedWith, setSharedWith] = useState<Instructor | null>(null)
+  const [sharedWith, setSharedWith] = useState<{ id: string; name: string } | null>(null)
+  const [friends, setFriends] = useState<Friend[]>([])
   const { toast, show: showToast } = useUndoToast(3000)
+
+  useEffect(() => {
+    if (isSocialConfigured()) {
+      ensureAccount(loadProfile()).then(account => {
+        if (account) loadFriends().then(setFriends)
+      })
+    }
+  }, [])
 
   // Playlist generation after the fact — same API as the build flow
   const { data: session } = useSession()
@@ -462,10 +508,11 @@ export default function ViewRoutinePage({
       {sharing && (
         <ShareSheet
           routine={{ ...routine, blocks }}
+          friends={friends}
           onClose={() => setSharing(false)}
-          onShared={inst => {
+          onShared={target => {
             setSharing(false)
-            setSharedWith(inst)
+            setSharedWith(target)
             setTimeout(() => setSharedWith(null), 4000)
           }}
         />

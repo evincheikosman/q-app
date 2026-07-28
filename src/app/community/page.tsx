@@ -1,10 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { IconMessageCircle, IconSend } from '@tabler/icons-react'
+import Link from 'next/link'
+import { IconMessageCircle, IconSend, IconUserPlus } from '@tabler/icons-react'
 import { ScribbleArrow, PenNote, PEN } from '@/components/Scribble'
 import BrandPhoto from '@/components/BrandPhoto'
+import AddFriendSheet from '@/components/AddFriendSheet'
 import { loadProfile } from '@/lib/profile'
+import { isSocialConfigured } from '@/lib/supabaseClient'
+import { ensureAccount, loadFriends, type Friend, type MyAccount } from '@/lib/social'
 
 // ─── Sample feed (fictional instructors — the multi-studio vision) ────────────
 
@@ -125,6 +129,11 @@ export default function CommunityPage() {
   const [commentOpenFor, setCommentOpenFor] = useState<string | null>(null)
   const [commentDraft, setCommentDraft] = useState('')
   const [ME, setME] = useState(DEFAULT_ME)
+  const [myAccount, setMyAccount] = useState<MyAccount | null>(null)
+  const [friends, setFriends] = useState<Friend[]>([])
+  const [addingFriend, setAddingFriend] = useState(false)
+  const [justConnected, setJustConnected] = useState<Friend | null>(null)
+  const socialConfigured = isSocialConfigured()
 
   useEffect(() => {
     setPosts(load('q_community_posts', [] as UserPost[]))
@@ -132,7 +141,26 @@ export default function CommunityPage() {
     setComments(load('q_community_comments', {} as Comments))
     const profile = loadProfile()
     if (profile?.name) setME({ name: profile.name, studio: profile.studio || 'Instructor' })
+
+    if (socialConfigured) {
+      ensureAccount(profile).then(account => {
+        setMyAccount(account)
+        if (account) loadFriends().then(setFriends)
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  function refreshFriends() {
+    loadFriends().then(next => {
+      const added = next.find(f => !friends.some(existing => existing.id === f.id))
+      setFriends(next)
+      if (added) {
+        setJustConnected(added)
+        setTimeout(() => setJustConnected(null), 6000)
+      }
+    })
+  }
 
   function persistPosts(next: UserPost[]) {
     setPosts(next)
@@ -339,13 +367,87 @@ export default function CommunityPage() {
             </PenNote>
           </span>
         </div>
-        <span
-          className="self-start text-xs font-semibold rounded-full px-3 py-1.5 leading-none"
-          style={{ backgroundColor: '#0D0D0F', color: '#AEC8F5' }}
-        >
-          Preview — what Community looks like with other instructors
-        </span>
+        {ME.name !== DEFAULT_ME.name && (
+          <p className="text-sm text-stone">
+            Welcome to {ME.studio && ME.studio !== DEFAULT_ME.studio ? ME.studio : 'the community'}, {ME.name.split(' ')[0]}.
+          </p>
+        )}
       </div>
+
+      {/* ── Your friends — real people, real connections (only once a backend is configured) ── */}
+      {socialConfigured && (
+        <section className="flex flex-col gap-3">
+          {justConnected && (
+            <div
+              className="rounded-2xl px-4 py-3.5 flex items-center gap-3"
+              style={{ backgroundColor: '#0D0D0F' }}
+            >
+              {justConnected.photoDataUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={justConnected.photoDataUrl} alt="" className="w-9 h-9 rounded-full object-cover shrink-0" />
+              ) : (
+                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: '#AEC8F5' }}>
+                  <span className="text-xs font-bold" style={{ color: '#0D0D0F' }}>{initials(justConnected.name)}</span>
+                </div>
+              )}
+              <p className="text-sm font-semibold text-white">
+                Welcome, {justConnected.name.split(' ')[0]}, to {justConnected.studio || ME.studio || 'the community'}! 🎉
+              </p>
+            </div>
+          )}
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold tracking-widest uppercase text-stone">Your friends</h2>
+            <button
+              onClick={() => setAddingFriend(true)}
+              className="flex items-center gap-1.5 text-xs font-bold text-stone hover:text-ink transition-colors rounded-full px-3 py-1.5 border border-border"
+            >
+              <IconUserPlus size={13} stroke={2} />
+              Add
+            </button>
+          </div>
+
+          {friends.length === 0 ? (
+            <div className="bg-white border border-border rounded-2xl px-5 py-6 flex flex-col items-center text-center gap-1 shadow-card">
+              <p className="text-sm font-bold text-ink">No friends connected yet.</p>
+              <p className="text-xs text-stone max-w-[240px]">
+                Add someone with their invite code and they&apos;ll show up here — say hi, share a routine, or send a playlist.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {friends.map(f => (
+                <Link
+                  key={f.id}
+                  href={`/messages?to=${f.id}`}
+                  className="bg-white rounded-2xl px-4 py-3.5 flex items-center gap-3.5 shadow-card active:opacity-80 transition-opacity"
+                >
+                  {f.photoDataUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={f.photoDataUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: '#0D0D0F' }}>
+                      <span className="text-xs font-bold" style={{ color: '#AEC8F5' }}>{initials(f.name)}</span>
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-ink truncate">{f.name}</p>
+                    <p className="text-xs text-stone truncate mt-0.5">{f.studio || 'Instructor'}</p>
+                  </div>
+                  <span className="shrink-0 text-xs font-semibold text-stone">Say hi →</span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {addingFriend && (
+        <AddFriendSheet
+          myAccount={myAccount}
+          onClose={() => setAddingFriend(false)}
+          onConnected={refreshFriends}
+        />
+      )}
 
       {/* Studio photo banner */}
       <BrandPhoto
@@ -411,6 +513,13 @@ export default function CommunityPage() {
           <span className="text-sm text-stone">Share some good news…</span>
         </button>
       )}
+
+      <span
+        className="self-start text-xs font-semibold rounded-full px-3 py-1.5 leading-none"
+        style={{ backgroundColor: '#0D0D0F', color: '#AEC8F5' }}
+      >
+        Preview — what Community looks like with other instructors
+      </span>
 
       {/* Feed — my posts first, then the sample instructors */}
       <div className="flex flex-col gap-3">
