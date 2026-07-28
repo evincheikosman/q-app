@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: "Q — Your class, on cue.",
   description: "AI-powered routine and playlist builder for Lagree fitness instructors.",
   manifest: "/manifest.json",
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Q" },
 };
 
