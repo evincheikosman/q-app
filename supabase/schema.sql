@@ -102,3 +102,21 @@ begin
   return result;
 end;
 $$ language plpgsql;
+
+-- ─── invite code lookup (bypasses RLS on purpose) ──────────────────────────
+-- "read connected profiles" only allows seeing profiles you're ALREADY
+-- connected to — which makes finding someone by their code impossible,
+-- since you're not connected yet. This SECURITY DEFINER function returns
+-- just the matching id for an exact code, without opening up general
+-- browsing of the profiles table.
+
+create or replace function find_profile_by_invite_code(code text)
+returns uuid
+language sql
+security definer
+set search_path = public
+as $$
+  select id from profiles where invite_code = upper(code) limit 1;
+$$;
+
+grant execute on function find_profile_by_invite_code(text) to authenticated;

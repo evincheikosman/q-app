@@ -94,14 +94,18 @@ export async function addFriendByCode(code: string): Promise<AddFriendResult> {
   const myId = sessionData.session?.user?.id
   if (!myId) return 'unavailable'
 
-  const { data: theirs } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('invite_code', code.trim().toUpperCase())
-    .maybeSingle()
+  // Looking someone up by invite code has to bypass the normal "read
+  // connected profiles" RLS restriction (you're not connected yet — that's
+  // the whole point). find_profile_by_invite_code is a SECURITY DEFINER
+  // function scoped to return just an id for an exact code match, so this
+  // doesn't open up browsing the profiles table generally.
+  const { data: theirsId } = await supabase.rpc('find_profile_by_invite_code', {
+    code: code.trim().toUpperCase(),
+  })
 
-  if (!theirs) return 'not-found'
-  if (theirs.id === myId) return 'self'
+  if (!theirsId) return 'not-found'
+  if (theirsId === myId) return 'self'
+  const theirs = { id: theirsId as string }
 
   // Canonical ordering so (a,b) and (b,a) never both exist
   const [user_a, user_b] = [myId, theirs.id].sort()
