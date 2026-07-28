@@ -2,6 +2,8 @@
 
 An AI-powered routine and playlist builder for Lagree fitness instructors.
 
+**Live:** [q-app-delta.vercel.app](https://q-app-delta.vercel.app)
+
 ---
 
 ## Why I built this
@@ -20,7 +22,9 @@ The core intelligence — routine generation and playlist mapping — is powered
 
 **Library** — All saved routines in one place, each with its linked Spotify playlist accessible in one tap.
 
-**Your Cue** — Insights from your teaching history: top artists, music patterns, class composition trends.
+**Your Cue** — Insights from your teaching history: top artists, music patterns, class composition trends, reflected back once enough routines have been built.
+
+**Community & Messages** — Real accounts (anonymous auth, no signup friction), invite-code friend connections, and live 1:1 DMs backed by Supabase — instructors can share routines and playlists directly with each other in real time.
 
 ---
 
@@ -28,9 +32,10 @@ The core intelligence — routine generation and playlist mapping — is powered
 
 - **Next.js 14** (App Router) + TypeScript
 - **Tailwind CSS**
-- **Anthropic Claude API** — routine and playlist generation
-- **Spotify Web API** + NextAuth.js — OAuth, playlist creation
-- **localStorage** — routine persistence (no database required for MVP)
+- **Anthropic Claude API** — routine generation, playlist curation, and AI-written instructor profile copy
+- **Spotify Web API** + NextAuth.js — OAuth (with automatic token refresh), playlist creation
+- **Supabase** — Postgres + Row Level Security + Realtime, for the multi-user layer (accounts, friend connections, DMs)
+- **localStorage** — all single-device app state (routines, schedule, notes, profile) — no account required to use the core app; Supabase is scoped narrowly to the social features
 
 ---
 
@@ -84,13 +89,20 @@ src/app/
     generate-routine/   # Claude routine generation
     generate-playlist/  # Claude + Spotify playlist builder
     save-playlist/      # Creates playlist in Spotify account
+  community/     # Feed + real friend connections
+  messages/      # 1:1 DMs (real, via Supabase, and a labeled fictional preview)
+src/lib/
+  social.ts          # Accounts, invite-code connections, DMs (Supabase)
+  supabaseClient.ts   # Guarded client — every social feature no-ops if unconfigured
+supabase/
+  schema.sql      # Postgres schema + RLS policies for the multi-user layer
 ```
 
 ---
 
 ## Status
 
-V1 core flow complete — routine generation and Spotify playlist building are both working end-to-end. Analytics (Your Cue) and account pages are still in progress. Deploying to Vercel once complete.
+Live in production. Core flow (routine + playlist generation, teach mode, library, Your Cue analytics) is complete and in daily use. Multi-user features (real friend connections, live DMs) shipped and being tested with a small group of instructors before a wider rollout.
 
 ---
 
