@@ -101,8 +101,12 @@ function computeSoundPatterns(routines: SavedRoutine[]) {
 }
 
 function buildReflection(total: number, topEmphasis: string | null, topArc: string | null): string {
-  if (total === 0) {
-    return "You haven't built a routine yet. Once you do, this is where Q will start reflecting back what it sees in your teaching — patterns, tendencies, the things you reach for without thinking."
+  if (total < PROFILE_THRESHOLD) {
+    const remaining = PROFILE_THRESHOLD - total
+    if (total === 0) {
+      return `Nothing here yet. Build ${PROFILE_THRESHOLD} routines and Q starts reflecting back what it sees in your teaching — the emphasis you keep reaching for, the arcs you build, the moves you never repeat.`
+    }
+    return `${total} of ${PROFILE_THRESHOLD} routines built. ${remaining} more and Q will start reflecting back patterns in your teaching.`
   }
 
   const parts: string[] = []
@@ -131,9 +135,10 @@ function buildReflection(total: number, topEmphasis: string | null, topArc: stri
 
 // ─── The one-liner — Q-written, unique per instructor ─────────────────────────
 
-const ONE_LINER_PLACEHOLDER = 'dark, driven, and here to make your hamstrings beg for mercy'
 const ONE_LINER_KEY = 'q_one_liner'
 const SIX_MONTHS = 182 * 24 * 60 * 60 * 1000
+/** Routines needed before Q starts writing a profile — no fabricated claims before this. */
+const PROFILE_THRESHOLD = 10
 
 export default function YourCuePage() {
   const [routines, setRoutines] = useState<SavedRoutine[]>([])
@@ -152,18 +157,22 @@ export default function YourCuePage() {
   }, [])
 
   const { total, topEmphasis, topArc } = computeStats(routines)
+  const hasProfileData = total >= PROFILE_THRESHOLD
+  const routinesRemaining = Math.max(0, PROFILE_THRESHOLD - total)
   const reflection = buildReflection(total, topEmphasis, topArc)
   const soundPatterns = computeSoundPatterns(routines)
   const distinctMoves = computeDistinctMoves(routines)
   const streakWeeks = computeStreakWeeks(routines)
 
-  // ── One-liner: cached ~6 months, regenerates from the instructor's own data ──
-  const [oneLiner, setOneLiner] = useState(ONE_LINER_PLACEHOLDER)
+  // ── One-liner: cached ~6 months, regenerates from the instructor's own data.
+  // Q doesn't write anything until there's enough data to actually reflect —
+  // no fabricated one-liners before PROFILE_THRESHOLD routines exist.
+  const [oneLiner, setOneLiner] = useState<string | null>(null)
   const [writing, setWriting] = useState(false)
 
   const generateOneLiner = useCallback(
     async (currentRoutines: SavedRoutine[]) => {
-      if (currentRoutines.length === 0) return
+      if (currentRoutines.length < PROFILE_THRESHOLD) return
       setWriting(true)
       try {
         const stats = computeStats(currentRoutines)
@@ -197,7 +206,7 @@ export default function YourCuePage() {
 
   // On load: use the cached line; regenerate when stale (~6 months) or missing
   useEffect(() => {
-    if (routines.length === 0) return
+    if (routines.length < PROFILE_THRESHOLD) return
     try {
       const cached = JSON.parse(localStorage.getItem(ONE_LINER_KEY) ?? 'null')
       if (cached?.text) {
@@ -284,12 +293,20 @@ export default function YourCuePage() {
 
         {/* one-liner — white marker. UNIQUE PER USER: Q writes it from the
             instructor's own data (music taste, emphasis, arcs, vibe prompts)
-            via /api/generate-one-liner; cached ~6 months; tap ↻ to rewrite. */}
+            via /api/generate-one-liner once PROFILE_THRESHOLD routines exist;
+            cached ~6 months; tap ↻ to rewrite. Before that, no fabricated
+            copy — just a plain explanation of what's coming and why. */}
         <div className="absolute flex items-start gap-2" style={{ top: '90px', left: '24px', maxWidth: '310px' }}>
           <PenNote color="#FFFFFF" size={17} rotate="-2deg" style={{ lineHeight: 1.45 }}>
-            {writing ? 'q is writing your line…' : oneLiner}
+            {hasProfileData
+              ? writing
+                ? 'q is writing your line…'
+                : oneLiner
+              : routinesRemaining === PROFILE_THRESHOLD
+                ? `build ${PROFILE_THRESHOLD} routines and q will write your line from your own teaching`
+                : `${routinesRemaining} more routine${routinesRemaining === 1 ? '' : 's'} and q will write your line`}
           </PenNote>
-          {total > 0 && !writing && (
+          {hasProfileData && !writing && (
             <button
               onClick={() => generateOneLiner(routines)}
               aria-label="Rewrite my one-liner"
@@ -302,25 +319,28 @@ export default function YourCuePage() {
           )}
         </div>
 
-        {/* stats — powder marker list */}
+        {/* stats — powder marker list. Below threshold this is a plain
+            progress count, not a claim about the instructor's style. */}
         <div className="absolute flex flex-col" style={{ left: '20px', bottom: '150px', gap: '2px' }}>
-          {total > 0 ? (
-            <PenNote color="#AEC8F5" size={17} rotate="-1deg">
-              + {total} routine{total === 1 ? '' : 's'} built
-            </PenNote>
+          {hasProfileData ? (
+            <>
+              <PenNote color="#AEC8F5" size={17} rotate="-1deg">
+                + {total} routine{total === 1 ? '' : 's'} built
+              </PenNote>
+              {topEmphasis && (
+                <PenNote color="#AEC8F5" size={17} rotate="-1deg">
+                  + {topEmphasis.toLowerCase()}
+                </PenNote>
+              )}
+              {topArc && (
+                <PenNote color="#AEC8F5" size={17} rotate="-1deg">
+                  + {shortArcLabel(topArc).toLowerCase()} arc
+                </PenNote>
+              )}
+            </>
           ) : (
             <PenNote color="#AEC8F5" size={17} rotate="-1deg">
-              + first routine loading…
-            </PenNote>
-          )}
-          {topEmphasis && (
-            <PenNote color="#AEC8F5" size={17} rotate="-1deg">
-              + {topEmphasis.toLowerCase()}
-            </PenNote>
-          )}
-          {topArc && (
-            <PenNote color="#AEC8F5" size={17} rotate="-1deg">
-              + {shortArcLabel(topArc).toLowerCase()} arc
+              + {total} of {PROFILE_THRESHOLD} routines built
             </PenNote>
           )}
         </div>
@@ -345,9 +365,19 @@ export default function YourCuePage() {
             fontVariationSettings: "'opsz' 96",
           }}
         >
-          BUILDS WITH INTENTION.
-          <br />
-          <span style={{ color: '#AEC8F5' }}>NEVER REPEATS.</span>
+          {hasProfileData ? (
+            <>
+              BUILDS WITH INTENTION.
+              <br />
+              <span style={{ color: '#AEC8F5' }}>NEVER REPEATS.</span>
+            </>
+          ) : (
+            <>
+              STILL FINDING
+              <br />
+              <span style={{ color: '#AEC8F5' }}>YOUR STYLE.</span>
+            </>
+          )}
         </p>
       </section>
 

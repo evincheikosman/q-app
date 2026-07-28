@@ -63,8 +63,12 @@ function ShareSheet({
     <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={onClose}>
       <div className="absolute inset-0" style={{ backgroundColor: 'rgba(13,13,15,0.5)' }} />
       <div
-        className="relative w-full max-w-lg bg-white rounded-t-3xl px-5 pt-5 pb-8 flex flex-col gap-4"
+        className="relative w-full max-w-lg bg-white rounded-t-3xl px-5 pt-5 pb-8 flex flex-col gap-4 overflow-y-auto"
         onClick={e => e.stopPropagation()}
+        style={{
+          paddingBottom: 'calc(32px + env(safe-area-inset-bottom))',
+          maxHeight: 'min(85vh, 640px)',
+        }}
       >
         <div className="flex items-center justify-between">
           <p className="text-sm font-bold text-ink">Share this routine</p>
