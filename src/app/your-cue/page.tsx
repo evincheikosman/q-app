@@ -1,10 +1,11 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { IconRefresh } from '@tabler/icons-react'
+import { IconRefresh, IconPencil } from '@tabler/icons-react'
 import { PenNote } from '@/components/Scribble'
 import NotesStack from '@/components/NotesStack'
 import BrandPhoto from '@/components/BrandPhoto'
+import EditProfileSheet from '@/components/EditProfileSheet'
 import type { SavedRoutine } from '@/types/routine'
 import { loadProfile, type Profile } from '@/lib/profile'
 
@@ -137,6 +138,7 @@ const SIX_MONTHS = 182 * 24 * 60 * 60 * 1000
 export default function YourCuePage() {
   const [routines, setRoutines] = useState<SavedRoutine[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [editingProfile, setEditingProfile] = useState(false)
 
   useEffect(() => {
     setProfile(loadProfile())
@@ -209,12 +211,29 @@ export default function YourCuePage() {
   return (
     <div className="px-5 pt-12 pb-10 flex flex-col gap-8 max-w-lg mx-auto w-full relative">
 
-      <h1
-        className="font-extrabold text-ink"
-        style={{ fontSize: '34px', lineHeight: 1, fontVariationSettings: "'opsz' 96" }}
-      >
-        Your Cue
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1
+          className="font-extrabold text-ink"
+          style={{ fontSize: '34px', lineHeight: 1, fontVariationSettings: "'opsz' 96" }}
+        >
+          Your Cue
+        </h1>
+        <button
+          onClick={() => setEditingProfile(true)}
+          className="flex items-center gap-1.5 text-xs font-bold text-stone hover:text-ink transition-colors rounded-full px-3 py-2 border border-border"
+        >
+          <IconPencil size={13} stroke={2} />
+          Edit profile
+        </button>
+      </div>
+
+      {editingProfile && (
+        <EditProfileSheet
+          initial={profile}
+          onClose={() => setEditingProfile(false)}
+          onSaved={setProfile}
+        />
+      )}
 
       {/* ── The POWDER poster: full-bleed B&W photo + marker annotations ── */}
       <section
