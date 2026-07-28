@@ -5,6 +5,7 @@
  */
 
 import type { SavedRoutine } from '@/types/routine'
+import { saveSchedule, hasSchedule } from '@/lib/schedule'
 
 const WEEK = 7 * 24 * 60 * 60 * 1000
 
@@ -235,6 +236,16 @@ export function seedDemoData() {
   if (isEmpty('q_routines')) {
     const routines: SavedRoutine[] = [routineTwo(now), routineOne(now)]
     localStorage.setItem('q_routines', JSON.stringify(routines))
+  }
+
+  // The two demo routines are linked to Sat 11:00 / Sun 10:10 — seed a matching
+  // demo schedule so "Next class" has something to show. Non-destructive: never
+  // overwrites a schedule the instructor already entered themselves.
+  if (!hasSchedule()) {
+    saveSchedule([
+      { day: 6, hour: 11, minute: 0 },
+      { day: 0, hour: 10, minute: 10 },
+    ])
   }
 
   const notes: DemoNote[] = [

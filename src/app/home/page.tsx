@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { IconPencil } from '@tabler/icons-react'
 import BrandPhoto from '@/components/BrandPhoto'
 import { PenNote } from '@/components/Scribble'
+import ScheduleSheet from '@/components/ScheduleSheet'
 import facts from '@/data/facts.json'
 import type { SavedRoutine } from '@/types/routine'
 import { seedDemoData, isFirstRun, markIntroSeen } from '@/lib/demo'
 import { saveProfile, loadProfile } from '@/lib/profile'
+import { loadSchedule, nextOccurrence, type ClassSlot } from '@/lib/schedule'
 
 // ─── First-run intro — three beats, then in. Never shows again. ──────────────
 
@@ -214,28 +217,8 @@ function IntroOverlay({ onDone }: { onDone: (seed: boolean) => void }) {
 }
 
 // ─── Schedule ─────────────────────────────────────────────────────────────────
-
-const SCHEDULE = [
-  { day: 6, hour: 11, minute: 0 },
-  { day: 6, hour: 11, minute: 50 },
-  { day: 0, hour: 10, minute: 10 },
-  { day: 0, hour: 11, minute: 0 },
-]
-
-function nextOccurrence(day: number, hour: number, minute: number, now: Date): Date {
-  const currentDay = now.getDay()
-  let daysUntil = (day - currentDay + 7) % 7
-  if (daysUntil === 0) {
-    const slot = new Date(now)
-    slot.setHours(hour, minute, 0, 0)
-    if (slot <= now) daysUntil = 7
-  }
-  const date = new Date(now)
-  date.setDate(now.getDate() + daysUntil)
-  date.setHours(hour, minute, 0, 0)
-  date.setSeconds(0, 0)
-  return date
-}
+// Schedule itself now lives in src/lib/schedule.ts — no hardcoded days/times
+// here. It's whatever the instructor entered via ScheduleSheet, or nothing.
 
 function formatDate(date: Date) {
   return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
@@ -262,8 +245,8 @@ const REFLECTION_OPTIONS: {
 ]
 
 /** The most recent class that already happened (each slot's next occurrence − 7 days) */
-function lastClass(now: Date): Date | null {
-  const past = SCHEDULE
+function lastClass(schedule: ClassSlot[], now: Date): Date | null {
+  const past = schedule
     .map(({ day, hour, minute }) => {
       const next = nextOccurrence(day, hour, minute, now)
       return new Date(next.getTime() - 7 * 24 * 60 * 60 * 1000)
@@ -387,7 +370,9 @@ function LinkedDot({ white = false }: { white?: boolean }) {
 export default function HomePage() {
   const [routines, setRoutines] = useState<SavedRoutine[]>([])
   const [showIntro, setShowIntro] = useState(false)
-  const [firstName, setFirstName] = useState('there')
+  const [firstName, setFirstName] = useState('')
+  const [schedule, setSchedule] = useState<ClassSlot[]>([])
+  const [editingSchedule, setEditingSchedule] = useState(false)
   const now = new Date()
   const hour = now.getHours()
 
@@ -395,6 +380,7 @@ export default function HomePage() {
     if (isFirstRun()) setShowIntro(true)
     const profile = loadProfile()
     if (profile?.name) setFirstName(profile.name.split(' ')[0])
+    setSchedule(loadSchedule())
     try {
       const stored = localStorage.getItem('q_routines')
       if (stored) {
@@ -410,6 +396,7 @@ export default function HomePage() {
     if (profile?.name) setFirstName(profile.name.split(' ')[0])
     if (seed) {
       seedDemoData()
+      setSchedule(loadSchedule())
       try {
         const stored = localStorage.getItem('q_routines')
         if (stored) {
@@ -421,7 +408,8 @@ export default function HomePage() {
     setShowIntro(false)
   }
 
-  const upcoming = SCHEDULE
+  const hasSchedule = schedule.length > 0
+  const upcoming = schedule
     .map(({ day, hour, minute }) => nextOccurrence(day, hour, minute, now))
     .sort((a, b) => a.getTime() - b.getTime())
 
@@ -437,7 +425,7 @@ export default function HomePage() {
     )
   }
 
-  const nextLinked = linkedRoutine(nextClass)
+  const nextLinked = nextClass ? linkedRoutine(nextClass) : undefined
   // Linked = a routine exists for this slot. A Spotify playlist is a bonus, not the bar.
   const isLinked = !!nextLinked
 
@@ -458,7 +446,7 @@ export default function HomePage() {
   const recentRoutines = routines.slice(0, 5)
 
   // Split "11:00 AM" so the meridiem can take the butter accent
-  const timeStr = formatTime(nextClass)
+  const timeStr = nextClass ? formatTime(nextClass) : ''
   const [timeDigits, meridiem] = [timeStr.replace(/\s?[AP]M$/i, ''), timeStr.match(/[AP]M$/i)?.[0] ?? '']
 
   // Daily fact — powder left-rule + marker title
@@ -489,9 +477,21 @@ export default function HomePage() {
             className="font-extrabold text-ink"
             style={{ fontSize: '40px', lineHeight: 1.05, fontVariationSettings: "'opsz' 96" }}
           >
-            {greeting(hour)},<br />{firstName}.
+            {firstName ? (
+              <>{greeting(hour)},<br />{firstName}.</>
+            ) : (
+              <>{greeting(hour)}!</>
+            )}
           </h1>
         </div>
+
+        {editingSchedule && (
+          <ScheduleSheet
+            initial={schedule}
+            onClose={() => setEditingSchedule(false)}
+            onSaved={setSchedule}
+          />
+        )}
 
         {/* ── Next class hero card ── */}
         <section
@@ -519,63 +519,97 @@ export default function HomePage() {
               Q
             </span>
 
-            <p className="text-[10px] font-bold tracking-[3px] uppercase relative" style={{ color: '#AEC8F5' }}>
-              Next Class
-            </p>
-
-            <div className="flex items-start justify-between gap-3 relative">
-              <div>
-                <p className="text-xs font-medium tracking-widest uppercase text-white/60">
-                  {formatDate(nextClass)}
-                </p>
-                <p
-                  className="text-white leading-none mt-1"
-                  style={{ fontSize: '72px', fontWeight: 800, fontVariationSettings: "'opsz' 96", letterSpacing: '-2px' }}
-                >
-                  {timeDigits}<span style={{ color: '#AEC8F5' }}>{meridiem}</span>
-                </p>
-                {moreThisWeek > 0 && (
-                  <p className="text-xs mt-1.5 text-white/60">
-                    + {moreThisWeek} more this week
+            {hasSchedule ? (
+              <>
+                <div className="flex items-center justify-between relative">
+                  <p className="text-[10px] font-bold tracking-[3px] uppercase" style={{ color: '#AEC8F5' }}>
+                    Next Class
                   </p>
+                  <button
+                    onClick={() => setEditingSchedule(true)}
+                    className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-white/50 hover:text-white transition-colors"
+                  >
+                    <IconPencil size={11} stroke={2} />
+                    Edit
+                  </button>
+                </div>
+
+                <div className="flex items-start justify-between gap-3 relative">
+                  <div>
+                    <p className="text-xs font-medium tracking-widest uppercase text-white/60">
+                      {nextClass && formatDate(nextClass)}
+                    </p>
+                    <p
+                      className="text-white leading-none mt-1"
+                      style={{ fontSize: '72px', fontWeight: 800, fontVariationSettings: "'opsz' 96", letterSpacing: '-2px' }}
+                    >
+                      {timeDigits}<span style={{ color: '#AEC8F5' }}>{meridiem}</span>
+                    </p>
+                    {moreThisWeek > 0 && (
+                      <p className="text-xs mt-1.5 text-white/60">
+                        + {moreThisWeek} more this week
+                      </p>
+                    )}
+                  </div>
+                  {isLinked && nextLinked && (
+                    <Link href={`/build/result/${nextLinked.id}`} className="mt-1">
+                      <LinkedDot white />
+                    </Link>
+                  )}
+                </div>
+
+                {albumArts.length > 0 && (
+                  <div className="flex items-center relative">
+                    {albumArts.map((url, i) => (
+                      <img
+                        key={url}
+                        src={url}
+                        alt=""
+                        className={`w-8 h-8 rounded-full object-cover border-2 border-white${i > 0 ? ' -ml-2' : ''}`}
+                      />
+                    ))}
+                  </div>
                 )}
-              </div>
-              {isLinked && nextLinked && (
-                <Link href={`/build/result/${nextLinked.id}`} className="mt-1">
-                  <LinkedDot white />
+
+                <Link
+                  href={isLinked ? '/library' : '/build'}
+                  className="w-full text-center font-bold text-base rounded-2xl py-3.5 block active:opacity-80 transition-all relative hover:brightness-105"
+                  style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
+                >
+                  {isLinked ? 'Review your routine →' : 'Build routine'}
                 </Link>
-              )}
-            </div>
 
-            {albumArts.length > 0 && (
-              <div className="flex items-center relative">
-                {albumArts.map((url, i) => (
-                  <img
-                    key={url}
-                    src={url}
-                    alt=""
-                    className={`w-8 h-8 rounded-full object-cover border-2 border-white${i > 0 ? ' -ml-2' : ''}`}
-                  />
-                ))}
-              </div>
+                {/* ── Reflection — last class, asked right on the anchor card.
+                     Only asked once there's at least one routine that predates the
+                     class — Q shouldn't ask how a class landed if it wasn't built in Q. ── */}
+                {(() => {
+                  const last = lastClass(schedule, now)
+                  const taughtWithQ = last && routines.some(r => r.savedAt <= last.getTime())
+                  return last && taughtWithQ ? <ReflectionStrip classDate={last} /> : null
+                })()}
+              </>
+            ) : (
+              <>
+                <p className="text-[10px] font-bold tracking-[3px] uppercase relative" style={{ color: '#AEC8F5' }}>
+                  Next Class
+                </p>
+                <div className="relative">
+                  <p className="text-white font-extrabold" style={{ fontSize: '26px', lineHeight: 1.15, fontVariationSettings: "'opsz' 96" }}>
+                    Help me help you.
+                  </p>
+                  <p className="text-sm mt-2 leading-relaxed max-w-[280px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                    I don&apos;t know your schedule yet — add the days and times you teach and I&apos;ll keep this card pointed at your next class.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setEditingSchedule(true)}
+                  className="w-full text-center font-bold text-base rounded-2xl py-3.5 block active:opacity-80 transition-all relative hover:brightness-105"
+                  style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
+                >
+                  Add my schedule
+                </button>
+              </>
             )}
-
-            <Link
-              href={isLinked ? '/library' : '/build'}
-              className="w-full text-center font-bold text-base rounded-2xl py-3.5 block active:opacity-80 transition-all relative hover:brightness-105"
-              style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
-            >
-              {isLinked ? 'Review your routine →' : 'Build routine'}
-            </Link>
-
-            {/* ── Reflection — last class, asked right on the anchor card.
-                 Only asked once there's at least one routine that predates the
-                 class — Q shouldn't ask how a class landed if it wasn't built in Q. ── */}
-            {(() => {
-              const last = lastClass(now)
-              const taughtWithQ = last && routines.some(r => r.savedAt <= last.getTime())
-              return last && taughtWithQ ? <ReflectionStrip classDate={last} /> : null
-            })()}
           </div>
         </section>
 

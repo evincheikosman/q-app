@@ -7,30 +7,7 @@ import { IconMicrophone, IconChevronLeft, IconCheck, IconBrandSpotify } from '@t
 import type { SavedRoutine } from '@/types/routine'
 import QMarkLoader from '@/components/QMarkLoader'
 import facts from '@/data/facts.json'
-
-// ─── Schedule ────────────────────────────────────────────────────────────────
-
-const SCHEDULE = [
-  { day: 6, hour: 11, minute: 0 },
-  { day: 6, hour: 11, minute: 50 },
-  { day: 0, hour: 10, minute: 10 },
-  { day: 0, hour: 11, minute: 0 },
-]
-
-function nextOccurrence(day: number, hour: number, minute: number, now: Date): Date {
-  const currentDay = now.getDay()
-  let daysUntil = (day - currentDay + 7) % 7
-  if (daysUntil === 0) {
-    const slot = new Date(now)
-    slot.setHours(hour, minute, 0, 0)
-    if (slot <= now) daysUntil = 7
-  }
-  const d = new Date(now)
-  d.setDate(now.getDate() + daysUntil)
-  d.setHours(hour, minute, 0, 0)
-  d.setSeconds(0, 0)
-  return d
-}
+import { loadSchedule, nextOccurrence } from '@/lib/schedule'
 
 function formatDate(date: Date) {
   return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
@@ -95,10 +72,15 @@ export default function BuildPage() {
   const [factVisible, setFactVisible] = useState(true)
   const [savedRoutines, setSavedRoutines] = useState<SavedRoutine[]>([])
   const [optionsOpenForSlot, setOptionsOpenForSlot] = useState<string | null>(null)
+  const [schedule, setSchedule] = useState<{ day: number; hour: number; minute: number }[]>([])
+
+  useEffect(() => {
+    setSchedule(loadSchedule())
+  }, [])
 
   // Dates computed once on the client — explicit locale prevents hydration mismatch
   const now = new Date()
-  const classDates = SCHEDULE
+  const classDates = schedule
     .map(({ day, hour, minute }) => nextOccurrence(day, hour, minute, now))
     .sort((a, b) => a.getTime() - b.getTime())
 
@@ -284,6 +266,15 @@ export default function BuildPage() {
         {step === 1 && (
           <div className="flex flex-col gap-3">
             <h2 className="text-xl font-bold text-ink mb-1">Which class are you building for?</h2>
+            {classDates.length === 0 && (
+              <p className="text-xs text-stone leading-relaxed -mt-1 mb-1">
+                No teaching schedule saved yet — add it from{' '}
+                <Link href="/home" className="font-semibold text-ink underline decoration-powder decoration-2 underline-offset-2">
+                  Home
+                </Link>{' '}
+                and your classes will show up here.
+              </p>
+            )}
             {classDates.map((date, i) => {
               const id = `slot-${i}`
               const active = selectedClasses.includes(id)
