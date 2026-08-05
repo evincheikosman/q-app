@@ -6,6 +6,7 @@
 
 import type { SavedRoutine } from '@/types/routine'
 import { saveSchedule, hasSchedule } from '@/lib/schedule'
+import { saveProfile } from '@/lib/profile'
 
 const WEEK = 7 * 24 * 60 * 60 * 1000
 
@@ -279,4 +280,36 @@ export function isFirstRun(): boolean {
 
 export function markIntroSeen() {
   localStorage.setItem('q_intro_seen', '1')
+}
+
+
+// ─── One-tap demo instructor ─────────────────────────────────────────────────
+// Lands a first-time visitor (a recruiter, say) in a fully lived-in app AS Evîn —
+// her identity + seeded routines/notes/schedule — instead of a blank setup screen.
+// Everything stays localStorage-only, so this never touches a real user's data,
+// and a real user can always leave the demo and start their own (see exitDemo).
+
+export const EVIN_DEMO_PROFILE = {
+  name: 'Evîn',
+  studio: '',
+  photoDataUrl: '/evin-demo.jpg',
+}
+
+export function startDemoAsEvin() {
+  saveProfile(EVIN_DEMO_PROFILE)
+  seedDemoData()
+  markIntroSeen()
+  try { localStorage.setItem('q_demo_mode', '1') } catch {}
+}
+
+export function isDemoMode(): boolean {
+  try { return localStorage.getItem('q_demo_mode') === '1' } catch { return false }
+}
+
+/** Leave the demo and wipe the seeded identity/content so a real user starts clean. */
+export function exitDemo() {
+  try {
+    ;['q_profile', 'q_routines', 'q_notes', 'q_schedule', 'q_demo_seeded', 'q_demo_mode', 'q_intro_seen']
+      .forEach(k => localStorage.removeItem(k))
+  } catch {}
 }

@@ -8,6 +8,7 @@ import BrandPhoto from '@/components/BrandPhoto'
 import EditProfileSheet from '@/components/EditProfileSheet'
 import type { SavedRoutine } from '@/types/routine'
 import { loadProfile, type Profile } from '@/lib/profile'
+import { isDemoMode } from '@/lib/demo'
 
 /** Distinct moves ever used — the data behind "NEVER REPEATS." */
 function computeDistinctMoves(routines: SavedRoutine[]): number {
@@ -140,13 +141,21 @@ const SIX_MONTHS = 182 * 24 * 60 * 60 * 1000
 /** Routines needed before Q starts writing a profile — no fabricated claims before this. */
 const PROFILE_THRESHOLD = 10
 
+// Demo mode: a first-time visitor sees a *finished* Your Cue (identity, one-liner,
+// statement) instead of the 2-of-10 progress state — without changing the real
+// threshold or calling the AI endpoint for actual users.
+const DEMO_ONE_LINER = 'Dark, driven, deliberate — never the same class twice.'
+const DEMO_REFLECTION = "This is a demo profile — a finished Your Cue built from an instructor's own teaching: the emphasis they keep reaching for, the energy arcs they favor, and the moves they rarely repeat."
+
 export default function YourCuePage() {
   const [routines, setRoutines] = useState<SavedRoutine[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
   const [editingProfile, setEditingProfile] = useState(false)
+  const [demo, setDemo] = useState(false)
 
   useEffect(() => {
     setProfile(loadProfile())
+    setDemo(isDemoMode())
   }, [])
 
   useEffect(() => {
@@ -156,10 +165,13 @@ export default function YourCuePage() {
     } catch {}
   }, [])
 
-  const { total, topEmphasis, topArc } = computeStats(routines)
-  const hasProfileData = total >= PROFILE_THRESHOLD
+  const stats = computeStats(routines)
+  const total = stats.total
+  const topEmphasis = demo ? 'Glutes & hamstrings' : stats.topEmphasis
+  const topArc = demo ? 'Slow build → big finish' : stats.topArc
+  const hasProfileData = demo || total >= PROFILE_THRESHOLD
   const routinesRemaining = Math.max(0, PROFILE_THRESHOLD - total)
-  const reflection = buildReflection(total, topEmphasis, topArc)
+  const reflection = demo ? DEMO_REFLECTION : buildReflection(total, topEmphasis, topArc)
   const soundPatterns = computeSoundPatterns(routines)
   const distinctMoves = computeDistinctMoves(routines)
   const streakWeeks = computeStreakWeeks(routines)
@@ -216,6 +228,11 @@ export default function YourCuePage() {
     } catch {}
     generateOneLiner(routines)
   }, [routines, generateOneLiner])
+
+  // Demo mode shows a written line without hitting the AI endpoint.
+  useEffect(() => {
+    if (demo) setOneLiner(DEMO_ONE_LINER)
+  }, [demo])
 
   return (
     <div className="px-5 pt-12 pb-10 flex flex-col gap-8 max-w-lg mx-auto w-full relative">
@@ -293,7 +310,7 @@ export default function YourCuePage() {
             rotate="-3deg"
             style={{ overflowWrap: 'break-word', wordBreak: 'break-word', display: 'block' }}
           >
-            {profile?.name || 'You'}
+            {demo ? 'Evîn' : (profile?.name || 'You')}
           </PenNote>
         </div>
 

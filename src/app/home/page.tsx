@@ -8,7 +8,7 @@ import { PenNote } from '@/components/Scribble'
 import ScheduleSheet from '@/components/ScheduleSheet'
 import facts from '@/data/facts.json'
 import type { SavedRoutine } from '@/types/routine'
-import { seedDemoData, isFirstRun, markIntroSeen } from '@/lib/demo'
+import { seedDemoData, isFirstRun, markIntroSeen, startDemoAsEvin, isDemoMode, exitDemo } from '@/lib/demo'
 import { saveProfile, loadProfile } from '@/lib/profile'
 import { loadSchedule, nextOccurrence, type ClassSlot } from '@/lib/schedule'
 
@@ -34,7 +34,7 @@ const INTRO_SLIDES = [
 
 type IntroPhase = 'slides' | 'profile' | 'cta'
 
-function IntroOverlay({ onDone }: { onDone: (seed: boolean) => void }) {
+function IntroOverlay({ onDone, onDemo }: { onDone: (seed: boolean) => void; onDemo: () => void }) {
   const [slide, setSlide] = useState(0)
   const [phase, setPhase] = useState<IntroPhase>('slides')
   const [name, setName] = useState('')
@@ -101,6 +101,13 @@ function IntroOverlay({ onDone }: { onDone: (seed: boolean) => void }) {
               style={{ backgroundColor: '#AEC8F5', color: '#0D0D0F' }}
             >
               Next
+            </button>
+            <button
+              onClick={onDemo}
+              className="w-full text-center font-semibold text-xs py-1"
+              style={{ color: 'rgba(255,255,255,0.55)' }}
+            >
+              Just exploring? See a demo instructor →
             </button>
           </div>
         </>
@@ -208,6 +215,13 @@ function IntroOverlay({ onDone }: { onDone: (seed: boolean) => void }) {
               style={{ color: 'rgba(255,255,255,0.6)' }}
             >
               Start fresh
+            </button>
+            <button
+              onClick={onDemo}
+              className="w-full text-center font-semibold text-sm py-2"
+              style={{ color: '#AEC8F5' }}
+            >
+              See a demo instructor (Evîn) →
             </button>
           </div>
         </div>
@@ -373,11 +387,13 @@ export default function HomePage() {
   const [firstName, setFirstName] = useState('')
   const [schedule, setSchedule] = useState<ClassSlot[]>([])
   const [editingSchedule, setEditingSchedule] = useState(false)
+  const [demo, setDemo] = useState(false)
   const now = new Date()
   const hour = now.getHours()
 
   useEffect(() => {
     if (isFirstRun()) setShowIntro(true)
+    setDemo(isDemoMode())
     const profile = loadProfile()
     if (profile?.name) setFirstName(profile.name.split(' ')[0])
     setSchedule(loadSchedule())
@@ -405,6 +421,22 @@ export default function HomePage() {
         }
       } catch {}
     }
+    setShowIntro(false)
+  }
+
+  function enterDemo() {
+    startDemoAsEvin()
+    const profile = loadProfile()
+    if (profile?.name) setFirstName(profile.name.split(' ')[0])
+    setSchedule(loadSchedule())
+    try {
+      const stored = localStorage.getItem('q_routines')
+      if (stored) {
+        const parsed: SavedRoutine[] = JSON.parse(stored)
+        setRoutines(parsed.sort((a, b) => b.savedAt - a.savedAt))
+      }
+    } catch {}
+    setDemo(true)
     setShowIntro(false)
   }
 
@@ -464,9 +496,23 @@ export default function HomePage() {
         .routine-scroll { scrollbar-width: none; }
       `}</style>
 
-      {showIntro && <IntroOverlay onDone={finishIntro} />}
+      {showIntro && <IntroOverlay onDone={finishIntro} onDemo={enterDemo} />}
 
       <div className="px-5 pt-14 pb-8 flex flex-col gap-8 max-w-lg mx-auto w-full relative">
+
+        {demo && (
+          <div className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 -mb-4" style={{ backgroundColor: 'rgba(174,200,245,0.14)', border: '1px solid rgba(174,200,245,0.3)' }}>
+            <span className="text-xs font-semibold text-ink/80">You&apos;re viewing a demo instructor.</span>
+            <button
+              onClick={() => { exitDemo(); window.location.reload() }}
+              className="text-xs font-bold rounded-xl px-3 py-1.5 shrink-0"
+              style={{ backgroundColor: '#0D0D0F', color: '#fff' }}
+            >
+              Start your own
+            </button>
+          </div>
+        )}
+
 
         {/* ── Greeting ── */}
         <div style={{ animation: 'fadeUp 400ms ease-out both' }}>
